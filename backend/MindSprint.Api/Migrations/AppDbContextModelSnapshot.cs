@@ -95,6 +95,12 @@ namespace MindSprint.Api.Migrations
                     b.Property<string>("SubCategory")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Version")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("ExternalId")
