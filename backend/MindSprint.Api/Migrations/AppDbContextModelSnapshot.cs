@@ -232,6 +232,77 @@ namespace MindSprint.Api.Migrations
                     b.ToTable("NotebookSources");
                 });
 
+            modelBuilder.Entity("MindSprint.Api.Models.RefreshToken", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeviceHint")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsRevoked")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Token")
+                        .IsUnique();
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("RefreshTokens");
+                });
+
+            modelBuilder.Entity("MindSprint.Api.Models.StudySchedule", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("DayOfWeek")
+                        .HasColumnType("int");
+
+                    b.Property<int>("DurationMinutes")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Label")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<TimeOnly>("StartTime")
+                        .HasColumnType("time");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId", "DayOfWeek");
+
+                    b.ToTable("StudySchedules");
+                });
+
             modelBuilder.Entity("MindSprint.Api.Models.User", b =>
                 {
                     b.Property<int>("Id")
@@ -261,6 +332,37 @@ namespace MindSprint.Api.Migrations
                         .IsUnique();
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("MindSprint.Api.Models.UserStudyDay", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CardsReviewed")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("LastUpdatedUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("MinutesStudied")
+                        .HasColumnType("int");
+
+                    b.Property<DateOnly>("StudyDate")
+                        .HasColumnType("date");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId", "StudyDate")
+                        .IsUnique();
+
+                    b.ToTable("UserStudyDays");
                 });
 
             modelBuilder.Entity("MindSprint.Api.Models.CardProgress", b =>
@@ -300,6 +402,17 @@ namespace MindSprint.Api.Migrations
                         .HasForeignKey("NotebookId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("MindSprint.Api.Models.RefreshToken", b =>
+                {
+                    b.HasOne("MindSprint.Api.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("MindSprint.Api.Models.Notebook", b =>
