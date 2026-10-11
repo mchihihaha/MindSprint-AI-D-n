@@ -10,12 +10,14 @@
     const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
     const $ = (sel) => pane.querySelector(sel);
 
-    const emptyState = () => ({ notebooks: [], nb: null, sources: [], notes: [], history: [], tutorHistory: [], chatMode: 'source', tutorStyle: 'steps', drafts: {source: '', tutor: ''}, quiz: null, audio: null, lastText: null, lastTitle: '', lastCards: null });
+    const emptyWork = () => ({question: '', submission: '', hints: [], revealed: false});
+    const emptyState = () => ({ notebooks: [], nb: null, sources: [], notes: [], history: [], tutorHistory: [], chatMode: 'source', tutorStyle: 'steps', tutorTask: 'solve', work: emptyWork(), drafts: {source: '', tutor: ''}, quiz: null, audio: null, lastText: null, lastTitle: '', lastCards: null });
     const state = emptyState();
     let workspaceVersion = 0;
     let notebookRequest = 0;
     let chatPending = false;
     let studioPending = false;
+    let workVersion = 0;
     const MAX_FILE = 10 * 1024 * 1024;
 
     // ---------- helpers ----------
@@ -136,12 +138,37 @@
                 </div>
                 <h3 id="nb-chat-title">Hỏi đáp theo nguồn</h3>
                 <div class="nb-tutor-controls" id="nb-tutor-controls" hidden>
+                    <div class="nb-tutor-style" role="radiogroup" aria-label="Hoạt động Gia sư">
+                        <button type="button" role="radio" aria-checked="true" data-tutor-task="solve">Giải bài</button>
+                        <button type="button" role="radio" aria-checked="false" tabindex="-1" data-tutor-task="check">Kiểm tra bài làm</button>
+                        <button type="button" role="radio" aria-checked="false" tabindex="-1" data-tutor-task="practice">Tự luyện</button>
+                    </div>
                     <div class="nb-tutor-style" role="radiogroup" aria-label="Cách giải">
                         <span>Cách giải</span>
                         <button type="button" role="radio" aria-checked="true" data-tutor-style="steps">Từng bước</button>
                         <button type="button" role="radio" aria-checked="false" tabindex="-1" data-tutor-style="brief">Ngắn gọn</button>
                     </div>
                     <button type="button" class="nb-chip" data-act="tutor-new">Bài mới</button>
+                </div>
+                <div id="nb-tutor-work" class="nb-tutor-work" hidden>
+                    <label for="nb-problem">Đề bài</label>
+                    <textarea id="nb-problem" class="nb-input" rows="3" maxlength="10000" placeholder="Nhập đề hoặc chỉ rõ câu trong tài liệu…">${esc(state.work.question)}</textarea>
+                    <div id="nb-submission-field">
+                        <label for="nb-submission">Bài làm của bạn</label>
+                        <textarea id="nb-submission" class="nb-input" rows="5" maxlength="10000" placeholder="Nhập các bước đã làm; có thể sửa và gửi lại…">${esc(state.work.submission)}</textarea>
+                    </div>
+                    <p class="nb-muted" id="nb-check-help">Gia sư đối chiếu bài làm, giải thích lỗi đầu tiên và hướng dẫn sửa. Nhận xét không kèm điểm số.</p>
+                    <button type="button" class="btn btn-primary" data-act="tutor-check">Kiểm tra bài làm</button>
+                    <div id="nb-work-messages" class="nb-messages" role="log" aria-label="Nhận xét bài làm" aria-live="polite"></div>
+                    <div id="nb-practice-controls" hidden>
+                        <p class="nb-muted">Mức 1: kiến thức · Mức 2: hướng xử lý · Mức 3: bước tiếp theo. Bạn chủ động chọn khi muốn xem lời giải.</p>
+                        <p id="nb-hint-progress" role="status" aria-live="polite"></p>
+                        <div class="nb-row">
+                            <button type="button" class="btn btn-primary" data-act="tutor-hint">Gợi ý tiếp</button>
+                            <button type="button" class="btn btn-secondary" data-act="tutor-solution">Xem lời giải</button>
+                        </div>
+                    </div>
+                    <div id="nb-practice-messages" class="nb-messages" role="log" aria-label="Gợi ý tự luyện" aria-live="polite" hidden></div>
                 </div>
                 <div class="nb-welcome">
                     <div class="welcome-orb" aria-hidden="true"></div>
@@ -257,6 +284,31 @@
         $('#nb-q').value = state.drafts[mode];
         $('#nb-composer-hint').textContent = tutor ? 'Enter để gửi · Shift+Enter xuống dòng' : 'Hỏi đáp dựa trên nguồn của bạn';
         syncTutorStyle();
+        syncTutorTask();
+    }
+
+    function syncTutorTask() {
+        const work = state.chatMode === 'tutor' && state.tutorTask !== 'solve';
+        pane.querySelectorAll('[data-tutor-task]').forEach(button => {
+            const selected = button.dataset.tutorTask === state.tutorTask;
+            button.setAttribute('aria-checked', String(selected)); button.tabIndex = selected ? 0 : -1;
+        });
+        $('#nb-tutor-work').hidden = !work;
+        $('.nb-composer').hidden = work;
+        $('.nb-tutor-style[aria-label="Cách giải"]').hidden = work;
+        $('#nb-tutor-messages').hidden = state.chatMode !== 'tutor' || work;
+        const practice = state.tutorTask === 'practice';
+        ['#nb-submission-field', '#nb-check-help', '[data-act="tutor-check"]', '#nb-work-messages'].forEach(sel => { $(sel).hidden = practice; });
+        $('#nb-practice-controls').hidden = !practice; $('#nb-practice-messages').hidden = !practice;
+        syncWorkButtons();
+    }
+
+    function syncWorkButtons() {
+        const level = state.work.hints.length;
+        $('[data-act="tutor-hint"]').disabled = chatPending || level >= 3 || state.work.revealed;
+        $('[data-act="tutor-solution"]').disabled = chatPending || state.work.revealed;
+        $('#nb-hint-progress').textContent = state.work.revealed ? 'Đã mở lời giải. Đổi đề hoặc chọn Bài mới để tự luyện tiếp.' : `Đã mở ${level}/3 mức gợi ý.`;
+        $('[data-act="tutor-hint"]').textContent = level >= 3 ? 'Đã mở đủ gợi ý' : `Gợi ý tiếp · Mức ${level + 1}`;
     }
 
     function syncTutorStyle() {
@@ -318,6 +370,7 @@
         chatPending = false; studioPending = false;
         state.history = [];
         state.tutorHistory = [];
+        state.work = emptyWork(); workVersion++;
         state.drafts = {source: '', tutor: ''};
         state.sources = sources;
         state.notes = notes;
@@ -360,7 +413,7 @@
 
     // ---------- chat ----------
     function addMsg(role, html, mode = 'source') {
-        const box = $(mode === 'tutor' ? '#nb-tutor-messages' : '#nb-messages');
+        const box = $(mode === 'practice' ? '#nb-practice-messages' : mode === 'work' ? '#nb-work-messages' : mode === 'tutor' ? '#nb-tutor-messages' : '#nb-messages');
         if (box.querySelector('.nb-muted') && box.children.length === 1) box.innerHTML = '';
         const d = document.createElement('div'); d.className = 'nb-msg ' + (role === 'user' ? 'user' : 'bot'); d.innerHTML = html;
         box.appendChild(d); box.scrollTop = box.scrollHeight; return d;
@@ -379,7 +432,7 @@
         busy(btn, true);
         busy($('[data-act="send"]'), true);
         busy($('#nb-q'), true);
-        pane.querySelectorAll('[data-chat-mode], [data-tutor-style], [data-act="tutor-new"]').forEach(button => busy(button, true));
+        pane.querySelectorAll('[data-chat-mode], [data-tutor-style], [data-tutor-task], [data-act="tutor-new"]').forEach(button => busy(button, true));
         try {
             const r = mode === 'tutor'
                 ? await api.nbTutor(notebookId, q, style, tutorContext())
@@ -399,7 +452,45 @@
             if (version === workspaceVersion) {
                 chatPending = false; busy(btn, false);
                 busy($('[data-act="send"]'), false); busy($('#nb-q'), false);
-                pane.querySelectorAll('[data-chat-mode], [data-tutor-style], [data-act="tutor-new"]').forEach(button => busy(button, false));
+                pane.querySelectorAll('[data-chat-mode], [data-tutor-style], [data-tutor-task], [data-act="tutor-new"]').forEach(button => busy(button, false));
+            }
+        }
+    }
+
+    async function sendTutorWork(action) {
+        if (chatPending || !ensureLoggedIn() || !state.nb) return;
+        const question = state.work.question.trim(), submission = state.work.submission.trim();
+        if (!question || (action === 'check' && !submission)) return window.MindSprintDialogs.alert(action === 'check' ? 'Hãy nhập đề bài và bài làm riêng trước khi kiểm tra.' : 'Hãy nhập đề bài cần tự luyện.');
+        if (action === 'hint' && (state.work.hints.length >= 3 || state.work.revealed)) return;
+        if (action === 'solution' && state.work.revealed) return;
+        const version = workspaceVersion, revision = workVersion, id = state.nb.id;
+        chatPending = true;
+        const controls = '[data-chat-mode], [data-tutor-task], [data-tutor-style], [data-act="tutor-new"], [data-act="tutor-check"], [data-act="tutor-hint"], [data-act="tutor-solution"]';
+        pane.querySelectorAll(controls).forEach(button => busy(button, true));
+        const hintLevel = state.work.hints.length + 1;
+        const label = action === 'check' ? 'Nhận xét bài làm' : action === 'hint' ? 'Gợi ý mức ' + hintLevel : 'Lời giải đầy đủ';
+        const wait = addMsg('bot', `<span role="status">Đang chuẩn bị ${label.toLowerCase()}…</span>`, action === 'check' ? 'work' : 'practice');
+        try {
+            const payload = action === 'check' ? {question, action, submission} : action === 'hint'
+                ? {question, action, hintLevel, history: state.work.hints.map(text => ({role: 'assistant', text}))} : {question, action, style: state.tutorStyle};
+            const reply = await api.nbTutorWork(id, payload);
+            if (version !== workspaceVersion || revision !== workVersion || state.nb?.id !== id) return;
+            const feedback = reply.feedback;
+            const labels = {correct: 'Bài làm đúng', incorrect: 'Cần sửa bài làm', incomplete: 'Bài làm chưa hoàn chỉnh', needs_clarification: 'Cần làm rõ đề'};
+            const types = {calculation: 'Tính toán', reasoning: 'Lập luận / phương pháp', missing_step: 'Thiếu bước'};
+            const text = action === 'check' ? `### ${labels[feedback.status]}\n\n${feedback.firstErrorStep ? 'Bước cần xem lại: ' + feedback.firstErrorStep + '\n\n' : ''}${types[feedback.errorType] ? 'Loại lỗi: ' + types[feedback.errorType] + '\n\n' : ''}**Lý do:** ${feedback.reason}\n\n**Hướng tiếp theo:** ${feedback.suggestion}\n\n${reply.answer}` : `### ${reply.needsClarification ? 'Cần làm rõ đề' : label}\n\n${reply.answer}`;
+            if (action === 'hint' && !reply.needsClarification) state.work.hints.push(reply.answer);
+            if (action === 'solution' && !reply.needsClarification) state.work.revealed = true;
+            wait.innerHTML = md(text) + '<button type="button" class="nb-icon-btn" data-act="save-answer">Lưu ghi chú</button>';
+            wait.dataset.raw = `Đề bài: ${question}\n\n${action === 'check' ? 'Bài làm: ' + submission + '\n\n' : ''}${text}`; wait.dataset.q = label + ': ' + question;
+        } catch (error) {
+            if (version !== workspaceVersion || revision !== workVersion) return;
+            wait.innerHTML = `<div class="nb-ai-error" role="status">${aiError(error)}<p>Đề và bài làm được giữ nguyên. Bạn có thể bấm lại để thử tiếp.</p></div>`;
+        } finally {
+            if (version === workspaceVersion) {
+                chatPending = false;
+                pane.querySelectorAll(controls).forEach(button => busy(button, false));
+                syncWorkButtons();
             }
         }
     }
@@ -499,6 +590,8 @@
     pane.addEventListener('click', async (e) => {
         const modeButton = e.target.closest('[data-chat-mode]');
         if (modeButton) return setChatMode(modeButton.dataset.chatMode);
+        const taskButton = e.target.closest('[data-tutor-task]');
+        if (taskButton && !chatPending) { state.tutorTask = taskButton.dataset.tutorTask; syncTutorTask(); return; }
         const styleButton = e.target.closest('[data-tutor-style]');
         if (styleButton && !chatPending) { state.tutorStyle = styleButton.dataset.tutorStyle; syncTutorStyle(); return; }
         const gen = e.target.closest('[data-gen]');
@@ -509,12 +602,18 @@
         const act = el.dataset.act;
         if (act !== 'nb-new' && !state.nb) return;
         if (act === 'retry-chat') return sendQuestion(el.dataset.q, el, el.dataset.mode || 'source', el.dataset.style || state.tutorStyle);
+        if (act === 'tutor-check') return sendTutorWork('check');
+        if (act === 'tutor-hint') return sendTutorWork('hint');
+        if (act === 'tutor-solution') return sendTutorWork('solution');
         if (act === 'tutor-new') {
             if (chatPending) return;
             const version = workspaceVersion;
-            if (state.tutorHistory.length && !await window.MindSprintDialogs.confirm('Bắt đầu bài mới sẽ xóa hội thoại Gia sư đang hiển thị. Ghi chú đã lưu vẫn được giữ.', {title: 'Bắt đầu bài mới', confirmText: 'Bài mới'})) return;
+            if ((state.tutorHistory.length || state.work.question) && !await window.MindSprintDialogs.confirm('Bắt đầu bài mới sẽ xóa hội thoại Gia sư đang hiển thị. Ghi chú đã lưu vẫn được giữ.', {title: 'Bắt đầu bài mới', confirmText: 'Bài mới'})) return;
             if (version !== workspaceVersion) return;
             state.tutorHistory = []; state.drafts.tutor = '';
+            state.work = emptyWork(); workVersion++;
+            $('#nb-problem').value = ''; $('#nb-submission').value = ''; $('#nb-work-messages').replaceChildren();
+            $('#nb-practice-messages').replaceChildren(); syncWorkButtons();
             $('#nb-tutor-messages').replaceChildren(); $('#nb-q').value = ''; $('#nb-q').focus();
             return;
         }
@@ -594,9 +693,16 @@
     });
     pane.addEventListener('input', (e) => {
         if (e.target.id === 'nb-url') validateUrl();
+        if (!['nb-problem', 'nb-submission'].includes(e.target.id)) return;
+        workVersion++;
+        if (e.target.id === 'nb-problem') {
+            state.work = {...emptyWork(), question: e.target.value, submission: state.work.submission};
+            $('#nb-practice-messages').replaceChildren(); syncWorkButtons();
+        } else state.work.submission = e.target.value;
+        $('#nb-work-messages').replaceChildren();
     });
 pane.addEventListener('keydown', (e) => {
-        const radio = e.target.closest('[data-chat-mode], [data-tutor-style]');
+        const radio = e.target.closest('[data-chat-mode], [data-tutor-style], [data-tutor-task]');
         if (radio && ['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(e.key)) {
             e.preventDefault();
             if (chatPending) return;
