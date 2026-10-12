@@ -4,6 +4,7 @@ Bộ tài liệu phục vụ yêu cầu kiến trúc [#40](https://github.com/tu
 
 | Tài liệu | Nội dung |
 | --- | --- |
+| [ERD](erd.md) | 10 bảng, 69 cột; khóa ngoại, quan hệ nghiệp vụ, ảnh PNG/SVG và Mermaid |
 | [Kiến trúc phần mềm](software-architecture.md) | Bối cảnh, thành phần, dữ liệu, luồng xử lý, triển khai và rủi ro |
 | [Yêu cầu phi chức năng](non-functional-requirements.md) | 14 yêu cầu NFR-01…NFR-14, ngưỡng và cách đo |
 | [Kế hoạch kiểm thử Sprint 4](sprint-4-test-plan.md) | Issue tương ứng, thứ tự thực hiện và điều kiện nghiệm thu |

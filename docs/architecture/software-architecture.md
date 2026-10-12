@@ -59,6 +59,9 @@ Không bổ sung message broker, Redis hay vector DB trong kiến trúc hiện t
 
 ## 4. Mô hình dữ liệu và ranh giới tài khoản
 
+Xem [ERD đầy đủ](erd.md) với 10 bảng, 69 cột và cardinality; có [ảnh PNG](erd.png),
+[vector SVG](erd.svg) và [Mermaid](erd.mmd). Sơ đồ phân biệt 5 FK thực với 5 tham chiếu nghiệp vụ chưa có FK.
+
 | Dữ liệu | Quy tắc và lưu ý |
 | --- | --- |
 | User / RefreshToken | Email unique; GoogleSubject unique khi khác null; refresh token gắn tài khoản, có hết hạn/thu hồi |
