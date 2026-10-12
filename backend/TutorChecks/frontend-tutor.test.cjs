@@ -15,6 +15,27 @@ function harness(fetch) {
 const reply = (status, data) => new Response(JSON.stringify(data), {status, headers: {'Content-Type': 'application/json'}});
 const credentials = id => ({token: `access-${id}`, refreshToken: `refresh-${id}`, user: {id, displayName: `User ${id}`, email: `user${id}@example.test`}});
 
+test('OCR uploads the original file through shared auth, refreshing without solving', async () => {
+    const calls = []; let refreshed = false;
+    const {api, auth} = harness(async (url, options) => {
+        if (url.endsWith('/login')) return reply(200, credentials(1));
+        if (url.endsWith('/refresh')) { refreshed = true; return reply(200, credentials(2)); }
+        calls.push({url, options});
+        return reply(refreshed ? 200 : 401, {text: 'Câu 1: $x^2$', warnings: [], pageCount: 1, method: 'ocr'});
+    });
+    await auth.login('user1@example.test', 'test');
+    const file = new File(['image-bytes'], 'de.png', {type: 'image/png'});
+    const result = await api.nbTutorOcr(10, file);
+    assert.equal(result.text, 'Câu 1: $x^2$'); assert.equal(calls.length, 2);
+    for (const call of calls) {
+        assert.equal(new URL(call.url).pathname, '/api/notebooks/10/tutor/ocr');
+        assert.equal(call.options.headers['Content-Type'], undefined);
+        assert.equal(call.options.body.get('file').name, 'de.png');
+        assert.equal(await call.options.body.get('file').text(), 'image-bytes');
+    }
+    assert.equal(calls[1].options.headers.Authorization, 'Bearer access-2');
+});
+
 test('tutor sends authenticated style and follow-up without source identifiers', async () => {
     let call;
     const {api, auth} = harness(async (url, options) => {
