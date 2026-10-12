@@ -243,10 +243,10 @@
         const file = document.getElementById('nb-file')?.files?.[0];
         const selection = document.getElementById('nb-file-selection');
         if (!selection) return;
-        const invalid = file && (!/\.(pdf|txt|md|csv)$/i.test(file.name) || file.size > 10 * 1024 * 1024);
+        const invalid = file && (!/\.(jpe?g|png|webp|pdf|txt|md|csv)$/i.test(file.name) || !file.size || file.size > 10 * 1024 * 1024);
         selection.classList.toggle('is-error', Boolean(invalid));
         selection.dataset.state = invalid ? 'error' : 'default';
-        selection.textContent = !file ? 'Chưa chọn tệp.' : invalid ? 'Chọn tệp PDF, TXT, MD hoặc CSV không quá 10 MB.' : file.name + ' · ' + (file.size / 1024).toLocaleString('vi', {maximumFractionDigits: 1}) + ' KB';
+        selection.textContent = !file ? 'Chưa chọn tệp.' : invalid ? 'Chọn ảnh, PDF, TXT, MD hoặc CSV không trống và không quá 10 MB.' : file.name + ' · ' + (file.size / 1024).toLocaleString('vi', {maximumFractionDigits: 1}) + ' KB';
         selection.dataset.hasFile = String(Boolean(file));
     }
     notebookPane.addEventListener('change', event => { if (event.target.id === 'nb-file') renderSelectedSourceFile(); });

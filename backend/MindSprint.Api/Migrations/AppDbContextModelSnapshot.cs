@@ -208,6 +208,12 @@ namespace MindSprint.Api.Migrations
 
             modelBuilder.Entity("MindSprint.Api.Models.NotebookSource", b =>
                 {
+                    b.Property<byte[]>("FileBytes")
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<string>("FileMediaType")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
