@@ -3286,9 +3286,7 @@ dialog.app-dialog { position: fixed; inset: 0; margin: auto; width: min(480px, c
 .nb-tutor-work > .btn { justify-self: start; }
 .nb-tutor-ocr { border-block: 1px solid var(--border-color); padding-block: var(--space-sm); }
 .nb-tutor-ocr input[type="file"] { width: 100%; min-width: 0; }
-.nb-tutor-ocr .nb-row { flex-wrap: wrap; }
 #nb-ocr-status { white-space: pre-wrap; overflow-wrap: anywhere; }
-#nb-ocr-review .btn { margin-block: var(--space-sm); }
 .nb-studio-results:has(.nb-result-panel[hidden]) .nb-notes-panel { grid-column: 1 / -1; }
 @media (max-width: 480px) { .nb-tutor-style > span { flex-basis: 100%; } .nb-tutor-controls { align-items: flex-end; } .nb-mode-btn, .nb-tutor-style button { font-size: .8rem; padding-inline: var(--space-step-12); } }
 @media (prefers-reduced-motion: reduce) { .nb-mode-btn, .nb-tutor-style button { transition: none; } .nb-mode-btn:active, .nb-tutor-style button:active { transform: none; } }

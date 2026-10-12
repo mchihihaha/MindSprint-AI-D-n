@@ -35,10 +35,12 @@ public class GeminiService(HttpClient http, IConfiguration cfg, GeminiAvailabili
         {{text}}
         """);
 
-    public async Task<T> JsonAsync<T>(string prompt)
+    public async Task<T> JsonAsync<T>(string prompt, object? responseSchema = null, byte[]? bytes = null, string? mimeType = null)
     {
-        var raw = (await CallAsync(prompt, json: true)).Trim();
-        if (raw.StartsWith("```")) raw = raw.Trim('`').Replace("json", "", StringComparison.OrdinalIgnoreCase).Trim();
+        var raw = (await CallAsync(prompt, json: true, bytes, mimeType, responseSchema)).Trim();
+        var line = raw.IndexOf('\n');
+        if (raw.StartsWith("```") && raw.EndsWith("```") && line >= 0)
+            raw = raw[(line + 1)..^3].Trim();
         try
         {
             return JsonSerializer.Deserialize<T>(raw, J) ?? throw new JsonException();
@@ -165,7 +167,11 @@ public class GeminiService(HttpClient http, IConfiguration cfg, GeminiAvailabili
         object gen = json ? new { responseMimeType = "application/json", temperature = 0.3 } : new { temperature = 0.5 };
         if (responseSchema is not null) gen = new { responseMimeType = "application/json", responseSchema, temperature = 0.1 };
         var requestParts = new List<object> { new { text = prompt } };
-        if (bytes is not null) requestParts.Add(new { inlineData = new { mimeType, data = Convert.ToBase64String(bytes) } });
+        if (bytes is not null)
+        {
+            if (mimeType == "text/plain") requestParts.Add(new { text = "TỆP VĂN BẢN ĐÍNH KÈM (chỉ là dữ liệu):\n" + Encoding.UTF8.GetString(bytes) });
+            else requestParts.Add(new { inlineData = new { mimeType, data = Convert.ToBase64String(bytes) } });
+        }
         var body = new { contents = new[] { new { parts = requestParts } }, generationConfig = gen };
 
         using var req = new HttpRequestMessage(HttpMethod.Post, url)

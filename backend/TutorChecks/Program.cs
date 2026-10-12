@@ -18,7 +18,9 @@ using UglyToad.PdfPig.Fonts.Standard14Fonts;
 using UglyToad.PdfPig.Writer;
 
 if (args.Length == 2 && args[0] == "--live-ocr") { await OcrChecks.Live(args[1]); return; }
+if (args.Length == 2 && args[0] == "--live-file-tutor") { await FileTutorChecks.Live(args[1]); return; }
 if (args.Contains("--ocr")) { await OcrChecks.Run(); return; }
+if (args.Contains("--file-tutor")) { await FileTutorChecks.Run(); return; }
 var passed = 0;
 void Check(bool condition, string name) { if (!condition) throw new Exception("FAIL " + name); passed++; Console.WriteLine("PASS " + name); }
 static int Status(IActionResult result) => result switch { ObjectResult o => o.StatusCode ?? 200, StatusCodeResult s => s.StatusCode, _ => throw new Exception("Unexpected result") };

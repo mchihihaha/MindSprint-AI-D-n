@@ -28,14 +28,14 @@ test('tutor and source UI: isolated context, notes, retries, keyboard, responsiv
         const base = `http://127.0.0.1:${server.address().port}`, errors=[], native=[], calls=[];
         page.on('pageerror', e => errors.push(e.message));
         page.on('dialog', async d => {native.push(d.message()); await d.dismiss();});
-        let sources=[], notes=[], user=42, failure=0, gate=null, release=null, ocrFailure=0, ocrGate=false, ocrRelease=null;
-        let ocrResult={text:'Câu 1: Giải $2x + 3 = 11$.\nCâu 2: $\\frac{1}{2} + \\sqrt{4}$',warnings:[],pageCount:1,method:'ocr'};
+        let sources=[], notes=[], user=42, failure=0, gate=null, release=null;
         const answer = '**Cách giải**\n\nTrừ 3 ở hai vế: $2x = 8$.\n\nChia hai vế cho 2: $x = 4$.\n\n```python\nx = (11 - 3) / 2\n```';
         await context.route('**/*', async route => {
             const req=route.request(), url=new URL(req.url());
             if (url.hostname==='localhost' && ['5000','5100'].includes(url.port)) {
-                const p=url.pathname, data=req.postData() && !p.endsWith('/tutor/ocr') ? req.postDataJSON() : undefined;
-                calls.push({path:p, method:req.method(), data});
+                const p=url.pathname, multipart=p.endsWith('/tutor/file');
+                const data=multipart && req.postData() ? JSON.parse(req.postData().match(/name="request"\r\n\r\n([^\r]+)/)[1]) : req.postData() ? req.postDataJSON() : undefined;
+                calls.push({path:p, method:req.method(), data, raw:multipart?req.postData():undefined});
                 let status=200, body=[];
                 if(req.method()!=='OPTIONS') {
                     if(p.endsWith('/google/config')) body={enabled:false};
@@ -46,11 +46,7 @@ test('tutor and source UI: isolated context, notes, retries, keyboard, responsiv
                     else if(p.endsWith('/sources')) body=sources;
                     else if(p.endsWith('/notes') && req.method()==='POST') {body={id:notes.length+1, ...data}; notes.push(body);}
                     else if(p.endsWith('/notes')) body=notes;
-                    else if(p.endsWith('/tutor/ocr')) {
-                        if(ocrGate) await new Promise(resolve=>{ocrRelease=resolve;});
-                        status=ocrFailure||200; body=ocrFailure?{message:'Trang 1 không đọc được đầy đủ. Hãy thay ảnh rõ hơn.',code:'ocr_incomplete'}:ocrResult;
-                    }
-                    else if(p.endsWith('/tutor')) {
+                    else if(p.endsWith('/tutor') || multipart) {
                         if(gate) await new Promise(resolve => {release=resolve;});
                         status=failure || 200;
                         body=failure ? {message:'AI đang bận', code:failure===429?'ai_rate_limited':'ai_unavailable', retryAfterSeconds:65} : {answer:data.question.includes('hình chữ nhật')?'Bạn cho biết chiều dài và chiều rộng nhé.':answer, needsClarification:data.question.includes('hình chữ nhật')};
@@ -72,7 +68,7 @@ test('tutor and source UI: isolated context, notes, retries, keyboard, responsiv
         await page.locator('#nb-select').selectOption('77');
         const q=page.locator('#nb-q'), tutor=page.locator('[data-chat-mode=tutor]'), source=page.locator('[data-chat-mode=source]');
         const submit=async text => {await q.fill(text); await page.locator('[data-act=send]').click(); await page.locator('[data-act=send]').waitFor({state:'visible'}); await page.waitForFunction(() => !document.querySelector('[data-act=send]').disabled);};
-        const tutorCalls=() => calls.filter(c=>c.path.endsWith('/tutor')&&c.method==='POST');
+        const tutorCalls=() => calls.filter(c=>(c.path.endsWith('/tutor')||c.path.endsWith('/tutor/file'))&&c.method==='POST');
         await q.fill('Nguồn chưa gửi'); await tutor.click();
         assert.equal(await q.inputValue(),'');
         assert.equal(await page.locator('.nb-studio-grid').isVisible(),false);
@@ -84,65 +80,61 @@ test('tutor and source UI: isolated context, notes, retries, keyboard, responsiv
         assert.equal(calls.filter(c=>c.path.endsWith('/chat')).length,0);
         await tutor.click(); assert.equal(await q.inputValue(),'Nháp gia sư');
         assert.match(await page.locator('#nb-tutor-help').innerText(),/Nhập đề bài trực tiếp/);
-        const file=page.locator('#nb-ocr-file'), review=page.locator('#nb-ocr-text'), read=page.locator('[data-act=ocr-read]'), confirm=page.locator('[data-act=ocr-confirm]');
-        const upload=async name=>{await file.setInputFiles({name,mimeType:name.endsWith('.pdf')?'application/pdf':'image/png',buffer:Buffer.from('test-file')}); await read.click(); await page.waitForFunction(()=>!document.querySelector('[data-act=ocr-read]').disabled);};
-        await upload('de-tieng-viet.png');
-        assert.equal(await review.inputValue(),ocrResult.text); assert.equal(tutorCalls().length,0);
-        assert.equal(await page.locator('[data-act=send]').isDisabled(),true);
-        await q.press('Enter'); assert.equal(tutorCalls().length,0);
-        await review.fill('Đề đã sửa: $2x + 3 = 11$'); await confirm.click();
-        assert.equal(await q.inputValue(),'Đề đã sửa: $2x + 3 = 11$'); assert.equal(tutorCalls().length,0);
-        await submit(await q.inputValue()); assert.equal(tutorCalls().at(-1).data.question,'Đề đã sửa: $2x + 3 = 11$');
-        await page.locator('[data-tutor-task=check]').click(); await page.locator('#nb-submission').fill('Bài làm cũ');
-        await upload('scan.pdf'); assert.equal(await page.locator('[data-act=tutor-check]').isDisabled(),true);
-        await review.fill('Đề PDF đã xác nhận'); await confirm.click();
-        assert.equal(await page.locator('#nb-problem').inputValue(),'Đề PDF đã xác nhận');
-        assert.equal(await page.locator('#nb-submission').inputValue(),'');
-        assert.equal(tutorCalls().length,1);
-        ocrResult={...ocrResult,text:'[không rõ] + 2',warnings:['Công thức mờ <script>window.OCR_XSS=1</script>']};
-        await upload('blur.webp'); assert.match(await page.locator('#nb-ocr-status').innerText(),/Công thức mờ/);
-        assert.equal(await page.evaluate(()=>window.OCR_XSS),undefined);
-        await confirm.click(); assert.equal(await review.isVisible(),true);
-        await review.fill('3x + 2 = 8'); await confirm.click(); assert.equal(await page.locator('#nb-problem').inputValue(),'3x + 2 = 8');
-        ocrFailure=422; await upload('unreadable.jpg');
-        assert.equal(await review.isVisible(),false); assert.match(await page.locator('#nb-ocr-status').innerText(),/không đọc được/);
-        await page.locator('[data-act=ocr-cancel]').click(); assert.equal(await page.locator('[data-act=tutor-check]').isDisabled(),false);
-        const ocrCalls=()=>calls.filter(c=>c.path.endsWith('/tutor/ocr')&&c.method==='POST');
-        const n=ocrCalls().length; await upload('invalid.exe'); assert.equal(ocrCalls().length,n);
-        await page.locator('[data-act=ocr-cancel]').click();
-        ocrFailure=0; ocrResult={...ocrResult,text:'Câu 1: Giải $2x + 3 = 11$.',warnings:[]};
-        ocrGate=true; await file.setInputFiles({name:'late.png',mimeType:'image/png',buffer:Buffer.from('test')}); await read.click();
-        await page.waitForFunction(()=>document.querySelector('[data-act=ocr-read]').disabled);
-        await page.locator('[data-act=ocr-cancel]').click(); ocrRelease(); ocrGate=false;
-        await page.waitForTimeout(80); assert.equal(await review.isVisible(),false);
-        ocrGate=true; await file.setInputFiles({name:'old-notebook.png',mimeType:'image/png',buffer:Buffer.from('test')}); await read.click();
-        await page.waitForFunction(()=>document.querySelector('[data-act=ocr-read]').disabled);
-        await page.locator('#nb-select').selectOption('78');
-        await page.waitForFunction(()=>!document.querySelector('[data-act=ocr-read]').disabled);
-        ocrRelease(); ocrGate=false; await page.waitForTimeout(80);
-        assert.equal(await review.isVisible(),false); assert.equal(await review.inputValue(),'');
-        const previousFile = await file.elementHandle();
-        await page.locator('#nb-select').selectOption('77');
-        await page.waitForFunction(element=>!element.isConnected,previousFile);
-        ocrGate=true; await file.setInputFiles({name:'old-account.png',mimeType:'image/png',buffer:Buffer.from('test')}); await read.click();
-        await page.waitForFunction(()=>document.querySelector('[data-act=ocr-read]').disabled);
-        await page.evaluate(()=>MindSprintAuth.logout());
-        ocrRelease(); ocrGate=false;
-        await page.evaluate(()=>MindSprintAuth.login('duy@example.test','qa-password'));
-        await tutor.click(); await page.locator('[data-tutor-task=check]').click();
-        assert.equal(await review.isVisible(),false); assert.equal(await review.inputValue(),'');
-        await upload('preview.png');
+        const file=page.locator('#nb-ocr-file');
+        const attach=async name=>file.setInputFiles({name,mimeType:name.endsWith('.pdf')?'application/pdf':'image/png',buffer:Buffer.from('ORIGINAL_FILE_BYTES')});
+        await attach('de-tieng-viet.png');
+        assert.equal(await q.inputValue(),'Nháp gia sư'); assert.equal(tutorCalls().length,0);
+        assert.equal(await page.locator('#nb-ocr-text').count(),0); assert.equal(await page.locator('[data-act=ocr-confirm]').count(),0);
+        assert.match(await page.locator('#nb-ocr-status').innerText(),/de-tieng-viet.png/);
+        await submit('Giải câu 1');
+        assert.equal(tutorCalls().at(-1).data.question,'Giải câu 1');
+        assert.equal(tutorCalls().at(-1).path,'/api/notebooks/77/tutor/file');
+        assert.match(tutorCalls().at(-1).raw,/ORIGINAL_FILE_BYTES/);
+        assert.doesNotMatch(await page.locator('#nb-tutor-messages').innerText(),/ORIGINAL_FILE_BYTES/);
+        await submit('Vì sao chia cho 2?'); assert.equal(tutorCalls().at(-1).data.history.length,2);
+        failure=429; await submit('Giải câu 2');
+        assert.match(await page.locator('#nb-tutor-messages').innerText(),/2 phút/);
+        failure=0; await page.locator('[data-act=retry-chat]').click();
+        await page.waitForFunction(()=>!document.querySelector('[data-act=send]').disabled);
+        assert.equal(tutorCalls().at(-1).path,'/api/notebooks/77/tutor/file');
+        await page.locator('[data-tutor-task=check]').click(); await attach('scan.pdf');
+        await page.locator('#nb-problem').fill('Câu 1'); await page.locator('#nb-submission').fill('2x = 8, x = 4');
+        await page.locator('[data-act=tutor-check]').click();
+        await page.waitForFunction(()=>!document.querySelector('[data-act=tutor-check]').disabled);
+        assert.equal(tutorCalls().at(-1).data.action,'check'); assert.equal(tutorCalls().at(-1).data.question,'Câu 1');
+        assert.match(tutorCalls().at(-1).raw,/scan.pdf/);
+        await page.locator('[data-tutor-task=practice]').click(); await page.locator('[data-act=tutor-hint]').click();
+        await page.waitForFunction(()=>!document.querySelector('[data-tutor-task=solve]').disabled);
+        assert.equal(tutorCalls().at(-1).data.action,'hint');
+        const count=tutorCalls().length; await attach('invalid.exe'); assert.equal(tutorCalls().length,count);
+        assert.match(await page.locator('#nb-ocr-status').innerText(),/chưa được đính kèm/);
+        await attach('<img onerror=alert(1)>.webp'); assert.equal(await page.locator('#nb-ocr-status img').count(),0);
+        await attach('de-bai.webp');
         for(const width of [320,768,1024,1440]) {
             await page.setViewportSize({width,height:1000});
-            assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,'OCR overflow at '+width);
-            if(width===320||width===1440) await page.screenshot({path:path.join(os.tmpdir(),`mindsprint-ocr-${width}.png`),fullPage:true});
+            assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,'attachment overflow at '+width);
+            if(width===320||width===1440) await page.screenshot({path:path.join(os.tmpdir(),`mindsprint-file-tutor-${width}.png`),fullPage:true});
         }
-        await page.locator('[data-act=ocr-cancel]').click(); await page.locator('[data-tutor-task=solve]').click();
-        await page.locator('[data-act=tutor-new]').click();
-        if(await page.locator('#app-dialog').isVisible()) await page.locator('#app-dialog-submit').click();
-        // Keep the existing solver assertions independent of the OCR exercise.
+        const previousFile=await file.elementHandle(); await page.locator('#nb-select').selectOption('78');
+        await page.waitForFunction(element=>!element.isConnected,previousFile);
+        assert.equal(await page.locator('[data-act=file-clear]').isVisible(),false);
+        await page.locator('[data-tutor-task=solve]').click(); await attach('old-notebook.jpg');
+        gate=true; await q.fill('Giải câu 1'); await page.locator('[data-act=send]').click();
+        await page.waitForFunction(()=>document.querySelector('[data-act=send]').disabled);
+        await page.locator('#nb-select').selectOption('77');
+        await page.waitForFunction(()=>!document.querySelector('[data-act=send]').disabled);
+        release(); gate=null; await page.waitForTimeout(80);
+        assert.equal(await page.locator('#nb-tutor-messages .nb-msg').count(),0);
+        assert.equal(await page.locator('[data-act=file-clear]').isVisible(),false);
+        await attach('old-account.png'); gate=true; await q.fill('Giải câu 1'); await page.locator('[data-act=send]').click();
+        await page.waitForFunction(()=>document.querySelector('[data-act=send]').disabled);
+        await page.evaluate(()=>MindSprintAuth.logout()); release(); gate=null;
+        await page.evaluate(()=>MindSprintAuth.login('duy@example.test','qa-password')); await tutor.click();
+        assert.equal(await page.locator('[data-act=file-clear]').isVisible(),false);
+        await attach('new.txt'); await page.locator('[data-act=file-clear]').click();
+        assert.equal(await page.locator('[data-act=file-clear]').isVisible(),false);
         calls.splice(0,calls.length);
-        console.log('PASS OCR review/edit/confirmation, no premature solve/check, scanned PDF, blur warnings, XSS, invalid files, cancel/stale response, responsive');
+        console.log('PASS direct attachments without OCR echo/confirmation, follow-up/retry, check/hint, validation/XSS, responsive, stale notebook/account and removal');
         await submit('Giải 2x + 3 = 11');
         assert.deepEqual(tutorCalls().at(-1).data,{question:'Giải 2x + 3 = 11',style:'steps',history:[]});
         assert.equal(await page.locator('#nb-tutor-messages .nb-msg').count(),2);

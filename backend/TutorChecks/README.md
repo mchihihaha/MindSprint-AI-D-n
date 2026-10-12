@@ -1,6 +1,6 @@
 # Issue #30 — Gia sư giải bài tập
 
-Đọc đề từ **JPG/PNG/WebP và PDF scan**, sửa và xác nhận trước khi giải/kiểm tra (#33): xem [OCR.md](OCR.md).
+**Đính kèm ảnh/PDF/TXT/MD/CSV rồi hỏi trực tiếp**, giữ công thức và không chép toàn bộ đề vào chat (#33): xem [OCR.md](OCR.md).
 
 Các hoạt động **Kiểm tra bài làm** (#31) và **Tự luyện** (#32), hợp đồng API và kiểm chứng Sprint 2 được mô tả trong [SPRINT2.md](SPRINT2.md).
 

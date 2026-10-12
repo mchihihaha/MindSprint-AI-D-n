@@ -1,83 +1,86 @@
-# Issue #33 — Đọc đề từ ảnh và PDF scan
+# Gia sư — Đính kèm đề rồi hỏi trực tiếp (#33)
 
-Trong **Sổ tay AI → Gia sư**, chọn JPG/JPEG, PNG, WebP hoặc PDF, rồi bấm
-**Nhận diện đề**. Đối chiếu tiếng Việt, công thức LaTeX, các dòng/câu với tệp gốc;
-sửa trong vùng **Đề đã nhận diện**, rồi bấm **Xác nhận và dùng đề**.
-Sau đó chủ động gửi câu hỏi để giải, nhập bài làm riêng để kiểm tra, hoặc tự luyện.
-Nhận diện và xác nhận không tự gọi giải bài. Đề mới xóa hội thoại/gợi ý/bài làm cũ.
+Trong **Sổ tay AI → Gia sư**, chọn ảnh hoặc tài liệu ở **Đính kèm đề bài**,
+sau đó nhập câu hỏi ngắn như **“Giải câu 1”**, **“Vì sao bước này đúng?”** hoặc
+**“Kiểm tra câu 2”** rồi gửi. Chọn tệp không tự gọi AI; tệp được gửi cùng câu hỏi.
+Giao diện chỉ hiện tên tệp, câu hỏi của bạn và câu trả lời, không chép toàn bộ
+nội dung nhận diện vào ô nhập/chat và không yêu cầu xác nhận OCR.
 
-Tệp tối đa **10 MB**, PDF tối đa **20 trang**, đề tối đa **10.000 ký tự**.
-PDF có lớp chữ được đọc bằng PdfPig; PDF có trang scan hoặc hình nhúng được gửi
-toàn bộ sang Gemini để giữ công thức/hình và các trang hỗn hợp. Ảnh cũng dùng Gemini
-hiện có, không cần dịch vụ hay thư viện OCR mới. Chỉ gửi tệp khi bấm Nhận diện;
-giao diện thông báo việc gửi tệp tới AI. Backend không lưu ảnh, PDF hay đề nhận diện
-vào nguồn/ghi chú/database. Bộ nhập URL và nguồn tài liệu của #27 giữ nguyên.
+- Hỗ trợ JPG/JPEG, PNG, WebP, PDF, TXT, MD, CSV; tối đa **10 MB**.
+- PDF tối đa **20 trang**, gửi nguyên PDF tới Gemini để giữ bố cục, số mũ,
+  phân số và hình vẽ, kể cả PDF có chữ, scan hoặc hỗn hợp.
+- TXT/MD/CSV dùng UTF-8, tối đa **200.000 ký tự**; không cắt nội dung âm thầm.
+- Câu hỏi và bài làm giữ giới hạn **10.000 ký tự** của Gia sư hiện có.
 
-Ảnh mờ/ký hiệu không chắc chắn được cảnh báo và đánh dấu `[không rõ]`; cần sửa
-dấu này trước khi xác nhận. Trang không đọc được, thiếu trang, nội dung chưa đầy đủ,
-JSON lỗi, kết quả bị ngắt và đề quá dài bị từ chối, không âm thầm cắt hoặc lưu đề.
-Chọn tệp khác để thử lại, hoặc **Hủy nhập ảnh/PDF** để gõ đề thủ công.
-OCR có thể nhận sai; bước đối chiếu/xác nhận vẫn cần thiết ngay cả khi không có cảnh báo.
-Kết quả trả về trễ bị bỏ khi hủy, thay tệp, bắt đầu bài mới, đổi sổ tay hoặc tài khoản.
+Tệp được giữ trong bộ nhớ trình duyệt để hỏi tiếp, thử lại, kiểm tra bài làm và
+tự luyện. **Bỏ tệp đính kèm**, **Bài mới**, đổi sổ tay/tài khoản hoặc tải lại trang
+sẽ bỏ tệp. Đổi/bỏ tệp xóa hội thoại và gợi ý cũ để tránh lẫn ngữ cảnh; câu hỏi/bài
+làm đang gõ vẫn được giữ. Khi chờ AI, tệp không thể bị thay trong cùng yêu cầu;
+kết quả trễ sau đổi sổ tay/tài khoản bị bỏ.
+
+Ở **Kiểm tra bài làm**, nhập câu cần kiểm tra trong Đề bài (ví dụ “Câu 1”) và
+bài làm trong vùng riêng. **Tự luyện** cũng dùng được tệp đính kèm; kiểm định gợi
+ý độc lập đọc cùng tệp gốc. Khi ảnh/công thức không rõ, Gia sư được yêu cầu hỏi
+lại phần thiếu, không đoán. Tệp hỏng, sai định dạng, vượt giới hạn hoặc kết quả
+bị ngắt được báo lỗi. Dịch vụ AI có thể đọc/giải sai; có thể hỏi lại hoặc thay tệp.
+
+Backend không lưu tệp vào database, nguồn hoặc ghi chú. Bộ nhập nguồn/URL vẫn
+hoạt động như trước. PDF nguồn có lớp chữ vẫn dùng PdfPig ở endpoint nhập nguồn.
 
 ## API
 
-`POST /api/notebooks/{id}/tutor/ocr`, JWT của ứng dụng, `multipart/form-data`,
-trường `file`. Kiểm tra quyền sở hữu trước khi đọc/gọi AI.
+`POST /api/notebooks/{id}/tutor/file`, dùng JWT chung, multipart có:
 
-```json
-{
-  "text": "Câu 1: Giải $2x + 3 = 11$.",
-  "method": "ocr",
-  "pageCount": 1,
-  "warnings": []
-}
-```
+- `file`: tệp gốc.
+- `request`: chuỗi JSON theo hợp đồng Gia sư, ví dụ
+  `{"question":"Giải câu 1","style":"steps","history":[]}`.
 
-`method` là `ocr` hoặc `pdf-text`. Không có lời giải trong phản hồi OCR.
-Tệp không hợp lệ trả 400; vượt giới hạn thân request trả 413; sổ tay không thuộc
-tài khoản trả 404; đề không đọc đủ trả 422; lỗi Gemini giữ mã quota/timeout/bận
-và `retryAfterSeconds`, không đăng xuất. Multipart được phép thêm 64 KB overhead;
-giới hạn 10 MB của riêng tệp vẫn được kiểm tra phía server.
+Hỗ trợ `action=solve/check/hint/solution`, cùng lịch sử/bài làm/mức gợi ý hiện có.
+Kiểm tra quyền sở hữu trước khi đọc/gọi AI. 400 cho đầu vào không hợp lệ, 404 cho
+sổ tay không thuộc tài khoản; 413 khi vượt kích thước request; giữ mã quota,
+timeout và retry của Gemini. Thân multipart được thêm 256 KB cho metadata;
+giới hạn riêng tệp 10 MB vẫn được kiểm tra phía server.
 
-Gửi **văn bản người dùng đã xác nhận** qua `/api/notebooks/{id}/tutor` hiện có,
-dùng `action=solve/check/hint/solution`. Xác nhận là thao tác phía UI;
-endpoint giải bài tiếp tục hỗ trợ đề gõ tay, không tạo token xác nhận mới.
+Trả `TutorReply` như `/tutor`. JSON schema bắt buộc cho lời giải, nhận xét, gợi ý
+và kiểm định giúp giữ escape LaTeX đúng; phản hồi JSON hỏng hoặc có ký tự điều
+khiển làm hỏng công thức bị từ chối. Câu hỏi gõ tay cũng hiển thị Markdown/LaTeX.
 
-## Kiểm chứng
+Endpoint `/tutor/ocr` cũ vẫn có để tương thích, giữ các kiểm tra OCR/đọc PDF có chữ;
+giao diện mới không gọi endpoint này.
+
+## Kiểm thử
 
 ```powershell
+dotnet run --project backend/TutorChecks/TutorChecks.csproj -c Release -- --file-tutor
 dotnet run --project backend/TutorChecks/TutorChecks.csproj -c Release -- --ocr
 dotnet run --project backend/TutorChecks/TutorChecks.csproj -c Release
 node --test tests/frontend-session.test.cjs tests/frontend-text.test.cjs backend/TutorChecks/frontend-tutor.test.cjs backend/GoogleAuthChecks/frontend-google.test.cjs
 node --test backend/TutorChecks/browser.test.cjs
 ```
 
-C# dùng SQLite trong bộ nhớ và HTTP Gemini giả lập; kiểm tra quyền, loại/dung lượng,
-PDF hỏng, tiếng Việt/công thức/nhiều dòng, cảnh báo ảnh mờ, trang thiếu/không đọc được,
-giới hạn đề, PDF có chữ, PDF hỗn hợp, JSON schema, kết quả bị ngắt và quota.
-Browser dùng Edge headless với hồ sơ riêng, API mô phỏng, kiểm tra sửa/xác nhận,
-chặn gửi trước xác nhận kể cả Enter, kiểm tra bài làm, cảnh báo/XSS, hủy và kết quả
-trễ, màn hình 320/768/1024/1440 px cùng các luồng Gia sư cũ.
+Kiểm tra tự động dùng SQLite trong bộ nhớ, HTTP Gemini/API giả lập và Edge với
+hồ sơ riêng. Bao gồm quyền sở hữu, file/request lỗi, chuyển nguyên ảnh/PDF,
+UTF-8, công thức, không chép đề ra UI, hỏi tiếp/retry/check/hint, kiểm định đọc
+cùng ảnh, thay/bỏ tệp, dữ liệu trễ, XSS và màn hình 320–1440 px.
 
-Kiểm thử Gemini thật tùy chọn, chỉ gửi ảnh đề **giả lập** và PDF scan tạo từ ảnh đó,
-không gửi dữ liệu người dùng, dùng cấu hình Gemini cục bộ:
+Kiểm thử Gemini thật tùy chọn, chỉ gửi đề giả lập, dùng cấu hình Gemini cục bộ:
 
 ```powershell
 node backend/TutorChecks/ocr-fixture.cjs
-dotnet run --project backend/TutorChecks/TutorChecks.csproj -c Release -- --live-ocr backend/TutorChecks/bin/ocr-fixtures/vietnamese.png
+dotnet run --project backend/TutorChecks/TutorChecks.csproj -c Release -- --live-file-tutor backend/TutorChecks/bin/ocr-fixtures/vietnamese.png
 ```
 
-Ảnh mẫu PNG/JPG/WebP gồm ba câu tiếng Việt, phương trình, phân số, căn, số mũ và đề nhiều dòng.
-Tệp mẫu/build nằm trong `bin/`, được Git bỏ qua. JSON schema và ví dụ escape LaTeX
-giúp tránh mất dấu gạch chéo trong công thức; phản hồi sai định dạng vẫn bị từ chối.
-API multimodal theo tài liệu chính thức Google:
-[ảnh](https://ai.google.dev/gemini-api/docs/generate-content/image-understanding),
+Ngày 12/10/2026, Gemini thật đọc trực tiếp PNG/JPG/WebP và PDF scan của đề mẫu,
+giải đúng A = 1/2 + √4 = 5/2 với JSON công thức hợp lệ; đề đạo hàm gõ tay cũng
+trả Markdown/LaTeX hợp lệ. Tệp mẫu/build trong bin/, được Git bỏ qua. Build có
+cảnh báo NU1900 do sandbox không truy cập nguồn kiểm tra lỗ hổng NuGet.
+
+Kiểm tra tự động qua **18/18** file tutor, **58/58** Gia sư, **23/23** OCR tương
+thích, **30/30** frontend/session/Google và **13/13** Gemini reliability; browser
+integration qua. Backend cục bộ đã khởi động với endpoint mới; request multipart
+không đăng nhập trả 401. Nhận xét Gemini thật cho bài đúng/sai/chưa hoàn chỉnh/
+thiếu dữ kiện cũng trả được schema mới.
+
+API multimodal theo tài liệu Google: [ảnh](https://ai.google.dev/gemini-api/docs/generate-content/image-understanding),
 [PDF](https://ai.google.dev/gemini-api/docs/generate-content/document-processing),
 [generationConfig](https://ai.google.dev/api/generate-content).
-
-Kết quả ngày 12/10/2026: **23/23** kiểm tra OCR C#, **58/58** Gia sư C#,
-**29/29** frontend/session/Google, và browser integration qua. Gemini thật đọc
-thành công PNG, JPG, WebP và PDF scan của đề mẫu, giữ tiếng Việt, ba câu, phân số
-và căn. Build Release không có lỗi; có cảnh báo NU1900 do sandbox không truy cập
-được nguồn dữ liệu kiểm tra lỗ hổng NuGet. Không thay đổi database thật.

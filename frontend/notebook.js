@@ -18,9 +18,7 @@
     let chatPending = false;
     let studioPending = false;
     let workVersion = 0;
-    let ocrVersion = 0;
-    let ocrPending = false;
-    let ocrNeedsConfirmation = false;
+    let tutorFile = null;
     const MAX_FILE = 10 * 1024 * 1024;
 
     // ---------- helpers ----------
@@ -121,16 +119,11 @@
                     <button type="button" class="nb-chip" data-act="tutor-new">Bài mới</button>
                 </div>
                 <section id="nb-tutor-ocr" class="nb-tutor-work nb-tutor-ocr" aria-label="Đọc đề từ ảnh hoặc PDF" hidden>
-                    <label for="nb-ocr-file">Đọc đề từ ảnh hoặc PDF</label>
-                    <input id="nb-ocr-file" class="nb-input" type="file" accept=".jpg,.jpeg,.png,.webp,.pdf" aria-describedby="nb-ocr-help">
-                    <p class="nb-muted" id="nb-ocr-help">JPG, PNG, WebP hoặc PDF · tối đa 10 MB, 20 trang. Tệp scan được gửi tới AI để nhận diện; đề chỉ được dùng sau khi bạn xem, sửa và xác nhận.</p>
-                    <div class="nb-row"><button type="button" class="btn btn-secondary" data-act="ocr-read">Nhận diện đề</button><button type="button" class="nb-chip" data-act="ocr-cancel">Hủy nhập ảnh/PDF</button></div>
+                    <label for="nb-ocr-file">Đính kèm đề bài</label>
+                    <input id="nb-ocr-file" class="nb-input" type="file" accept=".jpg,.jpeg,.png,.webp,.pdf,.txt,.md,.csv" aria-describedby="nb-ocr-help nb-ocr-status">
+                    <p class="nb-muted" id="nb-ocr-help">Ảnh, PDF, TXT, MD hoặc CSV · tối đa 10 MB, PDF tối đa 20 trang. Chọn tệp rồi hỏi, ví dụ: “Giải câu 1”. Tệp được gửi tới AI cùng câu hỏi.</p>
+                    <button type="button" class="nb-chip" data-act="file-clear" hidden>Bỏ tệp đính kèm</button>
                     <p id="nb-ocr-status" class="nb-muted" role="status" aria-live="polite"></p>
-                    <div id="nb-ocr-review" hidden>
-                        <label for="nb-ocr-text">Đề đã nhận diện — hãy đối chiếu và chỉnh sửa</label>
-                        <textarea id="nb-ocr-text" class="nb-input" rows="6" aria-describedby="nb-ocr-status"></textarea>
-                        <button type="button" class="btn btn-primary" data-act="ocr-confirm">Xác nhận và dùng đề</button>
-                    </div>
                 </section>
                 <div id="nb-tutor-work" class="nb-tutor-work" hidden>
                     <label for="nb-problem">Đề bài</label>
@@ -260,7 +253,7 @@
         $('#nb-chat-title').textContent = tutor ? 'Gia sư AI' : 'Hỏi đáp theo nguồn';
         $('.nb-welcome h2').textContent = tutor ? 'Bạn muốn giải bài tập nào?' : 'Bạn muốn khám phá điều gì từ tài liệu?';
         $('.nb-welcome p').textContent = tutor ? 'Cùng tìm cách giải, hiểu từng bước và hỏi lại điều chưa rõ.' : 'Cùng AI đọc hiểu, kết nối kiến thức và chuẩn bị cho lần ôn tập tiếp theo.';
-        $('#nb-q').placeholder = tutor ? 'Nhập đề bài hoặc câu hỏi cần giải thích…' : 'Bạn muốn hỏi gì về tài liệu của mình?';
+        $('#nb-q').placeholder = tutor ? 'Nhập đề hoặc hỏi về tệp, ví dụ: Giải câu 1…' : 'Bạn muốn hỏi gì về tài liệu của mình?';
         $('#nb-q').setAttribute('aria-label', tutor ? 'Đề bài hoặc câu hỏi cho Gia sư' : 'Câu hỏi về tài liệu');
         $('#nb-q').maxLength = tutor ? 10000 : 1000;
         $('#nb-q').value = state.drafts[mode];
@@ -287,68 +280,29 @@
 
     function syncWorkButtons() {
         const level = state.work.hints.length;
-        const blocked = chatPending || ocrPending || ocrNeedsConfirmation;
+        const blocked = chatPending;
         $('[data-act="send"]').disabled = chatPending || (state.chatMode === 'tutor' && blocked);
         $('[data-act="tutor-check"]').disabled = blocked;
         $('[data-act="tutor-hint"]').disabled = blocked || level >= 3 || state.work.revealed;
         $('[data-act="tutor-solution"]').disabled = blocked || state.work.revealed;
-        $('[data-act="ocr-read"]').disabled = chatPending || ocrPending;
-        $('[data-act="ocr-confirm"]').disabled = chatPending || ocrPending;
+        $('#nb-ocr-file').disabled = chatPending;
+        $('[data-act="file-clear"]').disabled = chatPending;
         $('#nb-hint-progress').textContent = state.work.revealed ? 'Đã mở lời giải. Đổi đề hoặc chọn Bài mới để tự luyện tiếp.' : `Đã mở ${level}/3 mức gợi ý.`;
         $('[data-act="tutor-hint"]').textContent = level >= 3 ? 'Đã mở đủ gợi ý' : `Gợi ý tiếp · Mức ${level + 1}`;
     }
 
-    function clearOcr() {
-        ocrVersion++; ocrPending = false; ocrNeedsConfirmation = false;
-        if ($('#nb-ocr-file')) $('#nb-ocr-file').value = '';
-        if ($('#nb-ocr-text')) $('#nb-ocr-text').value = '';
-        if ($('#nb-ocr-review')) $('#nb-ocr-review').hidden = true;
+    function clearTutorFile(clearInput = true) {
+        tutorFile = null;
+        if (clearInput && $('#nb-ocr-file')) $('#nb-ocr-file').value = '';
         if ($('#nb-ocr-status')) $('#nb-ocr-status').textContent = '';
+        if ($('[data-act="file-clear"]')) $('[data-act="file-clear"]').hidden = true;
     }
 
-    async function readTutorFile() {
-        if (chatPending || ocrPending || !ensureLoggedIn() || !state.nb) return;
-        const file = $('#nb-ocr-file').files[0];
-        const status = $('#nb-ocr-status');
-        if (!file) { status.textContent = 'Hãy chọn ảnh hoặc PDF trước.'; return; }
-        if (!/\.(jpe?g|png|webp|pdf)$/i.test(file.name) || file.size === 0 || file.size > MAX_FILE) {
-            status.textContent = 'Chọn JPG, PNG, WebP hoặc PDF hợp lệ, không trống và tối đa 10 MB.'; return;
-        }
-        const revision = ++ocrVersion, version = workspaceVersion, id = state.nb.id;
-        ocrPending = true; ocrNeedsConfirmation = true;
-        $('#nb-ocr-review').hidden = true; $('#nb-ocr-text').value = '';
-        status.textContent = 'Đang đọc đề… Chưa gửi yêu cầu giải hoặc kiểm tra bài làm.';
-        syncWorkButtons();
-        try {
-            const result = await api.nbTutorOcr(id, file);
-            if (revision !== ocrVersion || version !== workspaceVersion || state.nb?.id !== id) return;
-            if (typeof result.text !== 'string' || !result.text.trim() || result.text.length > 10000 || !Array.isArray(result.warnings))
-                throw new Error('Không nhận diện được toàn bộ đề trong giới hạn 10.000 ký tự. Hãy thay tệp hoặc nhập đề thủ công.');
-            $('#nb-ocr-text').value = result.text;
-            status.textContent = [`Đã đọc ${result.pageCount} trang. Hãy kiểm tra tiếng Việt, công thức và đủ các câu trước khi xác nhận.`, ...result.warnings].join('\n');
-            $('#nb-ocr-review').hidden = false;
-            $('#nb-ocr-text').focus();
-        } catch (error) {
-            if (revision !== ocrVersion || version !== workspaceVersion) return;
-            status.textContent = `${error.message || 'Chưa đọc được đề.'} Thay tệp để thử lại, hoặc hủy nhập ảnh/PDF để gõ đề thủ công.`;
-        } finally {
-            if (revision === ocrVersion && version === workspaceVersion) { ocrPending = false; syncWorkButtons(); }
-        }
-    }
-
-    function confirmTutorText() {
-        if (chatPending || ocrPending || !ocrNeedsConfirmation || $('#nb-ocr-review').hidden) return;
-        const text = $('#nb-ocr-text').value.trim();
-        if (!text || text.length > 10000 || text.includes('[không rõ]')) {
-            $('#nb-ocr-status').textContent = 'Hãy bổ sung ký hiệu [không rõ], nhập đủ đề và giữ trong giới hạn 10.000 ký tự trước khi xác nhận.';
-            $('#nb-ocr-text').focus(); return;
-        }
-        state.tutorHistory = []; state.work = {...emptyWork(), question: text}; workVersion++;
-        state.drafts.tutor = text; $('#nb-q').value = text; $('#nb-problem').value = text; $('#nb-submission').value = '';
+    function resetTutorConversation() {
+        state.tutorHistory = []; workVersion++;
+        state.work.hints = []; state.work.revealed = false;
         ['#nb-tutor-messages', '#nb-work-messages', '#nb-practice-messages'].forEach(sel => $(sel).replaceChildren());
-        clearOcr(); syncWorkButtons();
-        $('#nb-ocr-status').textContent = 'Đã dùng đề bạn xác nhận. Chọn Gửi câu hỏi, nhập bài làm để kiểm tra, hoặc tiếp tục tự luyện.';
-        $(state.tutorTask === 'solve' ? '#nb-q' : '#nb-problem').focus();
+        syncWorkButtons();
     }
 
     function syncTutorStyle() {
@@ -377,7 +331,7 @@
         const tutorHelp = $('#nb-tutor-help');
         if (tutorHelp) tutorHelp.textContent = state.sources.length
             ? `Gia sư đọc ${state.sources.length} nguồn trong sổ tay này. Bạn có thể hỏi “Giải câu 1” hoặc nhập đề khác.`
-            : 'Nhập đề bài trực tiếp hoặc thêm tài liệu để Gia sư đọc và giải bài trong nguồn.';
+            : 'Nhập đề bài trực tiếp hoặc đính kèm ảnh/tài liệu rồi hỏi Gia sư.';
         pane.dispatchEvent(new Event('ms-notebook-sources-rendered'));
     }
     function renderNotes() {
@@ -390,7 +344,7 @@
 
     // ---------- dữ liệu ----------
     function resetWorkspace() {
-        clearOcr();
+        clearTutorFile();
         workspaceVersion++;
         notebookRequest++;
         chatPending = false; studioPending = false;
@@ -407,7 +361,7 @@
         const [sources, notes] = await Promise.all([api.nbSources(notebook.id), api.nbNotes(notebook.id)]);
         if (version !== workspaceVersion || request !== notebookRequest || !auth.isLoggedIn()) return false;
         state.nb = notebook;
-        clearOcr();
+        clearTutorFile();
         workspaceVersion++;
         chatPending = false; studioPending = false;
         state.history = [];
@@ -462,7 +416,6 @@
     }
     async function sendQuestion(q, btn, mode = state.chatMode, style = state.tutorStyle) {
         if (chatPending) return;
-        if (mode === 'tutor' && (ocrPending || ocrNeedsConfirmation)) return;
         if (!ensureLoggedIn() || !state.nb) return;
         q = (q || '').trim(); if (!q) return;
         if (mode === 'source' && !state.sources.length) return window.MindSprintDialogs.alert('Hãy thêm ít nhất một nguồn trước.');
@@ -470,15 +423,16 @@
         chatPending = true;
         $('#nb-q').value = '';
         state.drafts[mode] = '';
-        addMsg('user', esc(q), mode);
+        addMsg('user', md(q) + (mode === 'tutor' && tutorFile ? `<p class="nb-muted">Tệp đính kèm: ${esc(tutorFile.name)}</p>` : ''), mode);
         const wait = addMsg('bot', `<span class="nb-muted" role="status"><span class="nb-loading-dots" aria-hidden="true"><i></i><i></i><i></i></span> ${mode === 'tutor' ? 'Gia sư đang tìm cách giải…' : 'Đang đọc nguồn...'}</span>`, mode);
         busy(btn, true);
         busy($('[data-act="send"]'), true);
         busy($('#nb-q'), true);
         pane.querySelectorAll('[data-chat-mode], [data-tutor-style], [data-tutor-task], [data-act="tutor-new"]').forEach(button => busy(button, true));
+        syncWorkButtons();
         try {
             const r = mode === 'tutor'
-                ? await api.nbTutor(notebookId, q, style, tutorContext())
+                ? await (tutorFile ? api.nbTutorFile(notebookId, tutorFile, {question:q, style, history:tutorContext()}) : api.nbTutor(notebookId, q, style, tutorContext()))
                 : await api.nbChat(notebookId, q, state.history);
             if (version !== workspaceVersion || state.nb?.id !== notebookId) return;
             const history = mode === 'tutor' ? state.tutorHistory : state.history;
@@ -502,7 +456,7 @@
     }
 
     async function sendTutorWork(action) {
-        if (chatPending || ocrPending || ocrNeedsConfirmation || !ensureLoggedIn() || !state.nb) return;
+        if (chatPending || !ensureLoggedIn() || !state.nb) return;
         const question = state.work.question.trim(), submission = state.work.submission.trim();
         if (!question || (action === 'check' && !submission)) return window.MindSprintDialogs.alert(action === 'check' ? 'Hãy nhập đề bài và bài làm riêng trước khi kiểm tra.' : 'Hãy nhập đề bài cần tự luyện.');
         if (action === 'hint' && (state.work.hints.length >= 3 || state.work.revealed)) return;
@@ -511,13 +465,14 @@
         chatPending = true;
         const controls = '[data-chat-mode], [data-tutor-task], [data-tutor-style], [data-act="tutor-new"], [data-act="tutor-check"], [data-act="tutor-hint"], [data-act="tutor-solution"]';
         pane.querySelectorAll(controls).forEach(button => busy(button, true));
+        syncWorkButtons();
         const hintLevel = state.work.hints.length + 1;
         const label = action === 'check' ? 'Nhận xét bài làm' : action === 'hint' ? 'Gợi ý mức ' + hintLevel : 'Lời giải đầy đủ';
         const wait = addMsg('bot', `<span role="status">Đang chuẩn bị ${label.toLowerCase()}…</span>`, action === 'check' ? 'work' : 'practice');
         try {
             const payload = action === 'check' ? {question, action, submission} : action === 'hint'
                 ? {question, action, hintLevel, history: state.work.hints.map(text => ({role: 'assistant', text}))} : {question, action, style: state.tutorStyle};
-            const reply = await api.nbTutorWork(id, payload);
+            const reply = await (tutorFile ? api.nbTutorFile(id, tutorFile, payload) : api.nbTutorWork(id, payload));
             if (version !== workspaceVersion || revision !== workVersion || state.nb?.id !== id) return;
             const feedback = reply.feedback;
             const labels = {correct: 'Bài làm đúng', incorrect: 'Cần sửa bài làm', incomplete: 'Bài làm chưa hoàn chỉnh', needs_clarification: 'Cần làm rõ đề'};
@@ -645,9 +600,7 @@
         if (gen) return generate(gen.dataset.gen, gen);
         const act = el.dataset.act;
         if (act !== 'nb-new' && !state.nb) return;
-        if (act === 'ocr-read') return readTutorFile();
-        if (act === 'ocr-confirm') return confirmTutorText();
-        if (act === 'ocr-cancel') { clearOcr(); syncWorkButtons(); return; }
+        if (act === 'file-clear' && !chatPending) { clearTutorFile(); resetTutorConversation(); return; }
         if (act === 'retry-chat') return sendQuestion(el.dataset.q, el, el.dataset.mode || 'source', el.dataset.style || state.tutorStyle);
         if (act === 'tutor-check') return sendTutorWork('check');
         if (act === 'tutor-hint') return sendTutorWork('hint');
@@ -657,7 +610,7 @@
             const version = workspaceVersion;
             if ((state.tutorHistory.length || state.work.question) && !await window.MindSprintDialogs.confirm('Bắt đầu bài mới sẽ xóa hội thoại Gia sư đang hiển thị. Ghi chú đã lưu vẫn được giữ.', {title: 'Bắt đầu bài mới', confirmText: 'Bài mới'})) return;
             if (version !== workspaceVersion) return;
-            clearOcr();
+            clearTutorFile();
             state.tutorHistory = []; state.drafts.tutor = '';
             state.work = emptyWork(); workVersion++;
             $('#nb-problem').value = ''; $('#nb-submission').value = ''; $('#nb-work-messages').replaceChildren();
@@ -739,10 +692,17 @@
 
     pane.addEventListener('change', (e) => {
         if (e.target.id === 'nb-ocr-file') {
-            ocrVersion++; ocrPending = false; ocrNeedsConfirmation = e.target.files.length > 0;
-            $('#nb-ocr-review').hidden = true; $('#nb-ocr-text').value = '';
-            $('#nb-ocr-status').textContent = ocrNeedsConfirmation ? 'Chọn Nhận diện đề để xem và sửa nội dung trước khi dùng.' : '';
-            syncWorkButtons();
+            if (chatPending) return;
+            const file = e.target.files[0];
+            clearTutorFile(false); resetTutorConversation();
+            if (!file) return;
+            if (!/\.(jpe?g|png|webp|pdf|txt|md|csv)$/i.test(file.name) || !file.size || file.size > MAX_FILE) {
+                e.target.value = '';
+                $('#nb-ocr-status').textContent = 'Tệp chưa được đính kèm. Chọn ảnh, PDF, TXT, MD hoặc CSV không trống và tối đa 10 MB.'; return;
+            }
+            tutorFile = file;
+            $('#nb-ocr-status').textContent = `Đã đính kèm ${file.name}. Nhập câu hỏi về câu/bài cần học; AI sẽ đọc tệp khi bạn gửi.`;
+            $('[data-act="file-clear"]').hidden = false;
         }
         if (e.target.id === 'nb-select' && e.target.value && ensureLoggedIn()) run(null, async () => { stopAudio(); await loadNotebook(e.target.value); renderMain(); });
     });

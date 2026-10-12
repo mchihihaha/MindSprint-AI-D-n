@@ -10,8 +10,8 @@ public record TutorOcrReply(string Text, string Method, int PageCount, List<stri
 /// <summary>Transient exercise recognition. Nothing is saved or sent to the solver.</summary>
 public class TutorOcrService(GeminiService gemini)
 {
-    public const int MaxFileBytes = 10 * 1024 * 1024;
-    public const int MaxPages = 20;
+    public const int MaxFileBytes = TutorFileReader.MaxFileBytes;
+    public const int MaxPages = TutorFileReader.MaxPages;
     private static readonly object ResponseSchema = new {
         type = "OBJECT", required = new[] { "pages" }, properties = new {
             pages = new { type = "ARRAY", items = new {
@@ -25,33 +25,15 @@ public class TutorOcrService(GeminiService gemini)
 
     public async Task<TutorOcrReply> ReadAsync(IFormFile? file, CancellationToken token)
     {
-        if (file is null || file.Length == 0) throw new ArgumentException("Tệp trống. Hãy chọn ảnh hoặc PDF.");
-        if (file.Length > MaxFileBytes) throw new ArgumentException("Tệp tối đa 10 MB.");
-        var mime = Path.GetExtension(file.FileName).ToLowerInvariant() switch {
-            ".jpg" or ".jpeg" => "image/jpeg", ".png" => "image/png", ".webp" => "image/webp", ".pdf" => "application/pdf",
-            _ => throw new ArgumentException("Chỉ hỗ trợ JPG, PNG, WebP hoặc PDF.")
-        };
-        using var stream = new MemoryStream();
-        await using (var input = file.OpenReadStream())
-        {
-            var buffer = new byte[81920];
-            int read;
-            while ((read = await input.ReadAsync(buffer, token)) > 0)
-            {
-                if (stream.Length + read > MaxFileBytes) throw new ArgumentException("Tệp tối đa 10 MB.");
-                await stream.WriteAsync(buffer.AsMemory(0, read), token);
-            }
-        }
-        var bytes = stream.ToArray();
-        if (!Matches(bytes, mime)) throw new ArgumentException("Nội dung tệp không đúng định dạng. Hãy chọn ảnh/PDF hợp lệ.");
-        var pageCount = 1;
+        var attachment = await TutorFileReader.ReadAsync(file, token);
+        var bytes = attachment.Bytes;
+        var mime = attachment.MimeType;
+        var pageCount = attachment.PageCount;
         if (mime == "application/pdf")
         {
             try
             {
                 using var pdf = PdfDocument.Open(bytes);
-                pageCount = pdf.NumberOfPages;
-                if (pageCount is < 1 or > MaxPages) throw new ArgumentException("PDF tối đa 20 trang. Hãy chọn phần đề cần học.");
                 var texts = new List<string>();
                 var needsOcr = false;
                 foreach (var page in pdf.GetPages())
@@ -100,11 +82,4 @@ public class TutorOcrService(GeminiService gemini)
         return new(text, method, pages, warnings);
     }
     private static GeminiUnavailableException Invalid(string message) => new("ocr_incomplete", message, 422);
-    private static bool Matches(byte[] bytes, string mime) => mime switch {
-        "application/pdf" => bytes.AsSpan().StartsWith("%PDF-"u8),
-        "image/png" => bytes.AsSpan().StartsWith(new byte[] {137, 80, 78, 71, 13, 10, 26, 10}),
-        "image/jpeg" => bytes.AsSpan().StartsWith(new byte[] {255, 216, 255}),
-        "image/webp" => bytes.Length >= 12 && bytes.AsSpan(0, 4).SequenceEqual("RIFF"u8) && bytes.AsSpan(8, 4).SequenceEqual("WEBP"u8),
-        _ => false
-    };
 }
