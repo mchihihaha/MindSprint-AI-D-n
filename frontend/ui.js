@@ -167,6 +167,16 @@
     let sourcesCollapsed = compactSources.matches;
     let sourceDialogTrigger = null;
 
+    function setChatExpanded(expanded) {
+        notebookPane.classList.toggle('is-chat-expanded', expanded);
+        const button = notebookPane.querySelector('[data-ui-act="toggle-chat-expanded"]');
+        if (!button) return;
+        button.setAttribute('aria-pressed', String(expanded));
+        button.querySelector('span').textContent = expanded ? 'Thu nhỏ' : 'Mở rộng';
+        button.querySelector('i').className = expanded ? 'fas fa-compress' : 'fas fa-expand';
+        button.title = expanded ? 'Thu nhỏ khung chat (Esc)' : 'Mở rộng khung chat';
+    }
+
     function syncSourcePanel() {
         const layout = notebookPane.querySelector('.nb-layout');
         const sources = notebookPane.querySelector('.nb-sources');
@@ -210,6 +220,7 @@
     }
     syncSourcePanel();
     notebookPane.addEventListener('ms-notebook-rendered', syncSourcePanel);
+    notebookPane.addEventListener('ms-notebook-rendered', () => setChatExpanded(auth.isLoggedIn() && notebookPane.classList.contains('is-chat-expanded')));
     compactSources.addEventListener('change', event => { sourcesCollapsed = event.matches; syncSourcePanel(); });
     document.querySelector('.sidebar').addEventListener('click', event => {
         if (event.target.closest('[data-tab]')?.dataset.tab !== 'notebook') document.getElementById('nb-add-source-dialog')?.close();
@@ -217,6 +228,7 @@
     notebookPane.addEventListener('click', event => {
         const action = event.target.closest('[data-ui-act]')?.dataset.uiAct;
         const trigger = event.target.closest('[data-ui-act]');
+        if (action === 'toggle-chat-expanded') setChatExpanded(!notebookPane.classList.contains('is-chat-expanded'));
         if (action === 'toggle-sources') {
             sourcesCollapsed = !sourcesCollapsed;
             syncSourcePanel();
@@ -231,6 +243,10 @@
         }
     });
     notebookPane.addEventListener('keydown', event => {
+        if (event.key === 'Escape' && notebookPane.classList.contains('is-chat-expanded') && !notebookPane.querySelector('dialog[open]') && !document.querySelector('#app-dialog[open]')) {
+            setChatExpanded(false);
+            notebookPane.querySelector('[data-ui-act="toggle-chat-expanded"]')?.focus();
+        }
         const tab = event.target.closest('[role="tab"][data-source-kind]');
         if (!tab || !['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
         event.preventDefault();

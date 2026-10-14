@@ -99,12 +99,15 @@
             </section>
 
             <section class="nb-col nb-chat glass-panel">
-                <div class="nb-mode-switch" role="radiogroup" aria-label="Chế độ hỏi đáp">
-                    <button type="button" class="nb-mode-btn" role="radio" aria-checked="true" data-chat-mode="source">Theo nguồn</button>
-                    <button type="button" class="nb-mode-btn" role="radio" aria-checked="false" tabindex="-1" data-chat-mode="tutor">Gia sư</button>
+                <div class="nb-chat-header">
+                    <div class="nb-mode-switch" role="radiogroup" aria-label="Chế độ hỏi đáp">
+                        <button type="button" class="nb-mode-btn" role="radio" aria-checked="true" data-chat-mode="source">Theo nguồn</button>
+                        <button type="button" class="nb-mode-btn" role="radio" aria-checked="false" tabindex="-1" data-chat-mode="tutor">Gia sư</button>
+                    </div>
+                    <h3 id="nb-chat-title">Hỏi đáp theo nguồn</h3>
+                    <button id="nb-source-add" class="nb-chip" type="button" data-ui-act="open-source-dialog" title="Thêm ảnh/tài liệu vào nguồn">Thêm nguồn</button>
+                    <button class="nb-chip nb-expand-chat" type="button" data-ui-act="toggle-chat-expanded" aria-pressed="false"><i class="fas fa-expand" aria-hidden="true"></i> <span>Mở rộng</span></button>
                 </div>
-                <h3 id="nb-chat-title">Hỏi đáp theo nguồn</h3>
-                <button id="nb-source-add" class="nb-chip" type="button" data-ui-act="open-source-dialog">Thêm ảnh/tài liệu vào nguồn</button>
                 <div class="nb-tutor-controls" id="nb-tutor-controls" hidden>
                     <div class="nb-tutor-style" role="radiogroup" aria-label="Hoạt động Gia sư">
                         <button type="button" role="radio" aria-checked="true" data-tutor-task="solve">Giải bài</button>
@@ -154,7 +157,7 @@
                 </div>
                 <div class="nb-suggest" id="nb-suggest" data-source-only></div>
                 <div class="nb-composer">
-                    <textarea class="nb-input" id="nb-q" aria-label="Câu hỏi về tài liệu" rows="3" placeholder="Bạn muốn hỏi gì về tài liệu của mình?" maxlength="1000"></textarea>
+                    <textarea class="nb-input" id="nb-q" aria-label="Câu hỏi về tài liệu" rows="1" placeholder="Bạn muốn hỏi gì về tài liệu của mình?" maxlength="1000"></textarea>
                     <div class="nb-composer-footer">
                         <button class="nb-icon-btn" type="button" data-ui-act="focus-upload" aria-label="Mở phần tải tài liệu" title="Thêm tài liệu" data-source-only><i class="fas fa-plus" aria-hidden="true"></i></button>
                         <span id="nb-composer-hint">Hỏi đáp dựa trên nguồn của bạn</span>
