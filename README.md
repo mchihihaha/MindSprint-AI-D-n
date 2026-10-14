@@ -1,5 +1,14 @@
 # MindSprintAI
 
+## Kiến trúc và yêu cầu phi chức năng
+
+[Bộ tài liệu kiến trúc](docs/architecture/README.md) mô tả kiến trúc theo nhánh main
+(ASP.NET Core + PostgreSQL), 4 ADR và 14 yêu cầu phi chức năng có tiêu chí đo được.
+Checkout cục bộ dưới đây còn dùng SQL Server; tài liệu ghi rõ khác biệt giữa hai mốc.
+Xem [kế hoạch kiểm thử Sprint 4](docs/architecture/sprint-4-test-plan.md) để tra cứu issues #42–#55.
+Tài liệu đã được gửi trong [PR #56](https://github.com/tungtungsahul/MindSprint-AI-D-n/pull/56);
+các ngưỡng là mục tiêu đề xuất và chưa có kết quả nghiệm thu.
+
 Stack đúng theo dự án: **HTML/CSS/JS (Fetch API)** + **C# ASP.NET Core Web API** + **SQL Server (EF Core Code First)** + **JWT** + **Gemini API**.
 
 ## Cấu trúc
