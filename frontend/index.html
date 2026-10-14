@@ -25,6 +25,7 @@
     <link rel="stylesheet" href="tokens.css?v=39">
     <link rel="stylesheet" href="style.css?v=59">
     <link rel="stylesheet" href="kanban.css?v=54">
+    <link rel="stylesheet" href="polish.css?v=1">
 </head>
 <body>
     <div class="app-container">
@@ -77,6 +78,9 @@
         <main class="main-content">
 
             <header class="workspace-header" aria-label="Tìm kiếm và tài khoản">
+                <button class="sidebar-toggle-btn" id="sidebar-toggle" aria-label="Ẩn hoặc hiện thanh điều hướng" title="Ẩn thanh bên để tập trung học">
+                    <i class="fas fa-indent"></i>
+                </button>
                 <div class="workspace-search">
                     <i class="fas fa-search" aria-hidden="true"></i>
                     <input type="search" name="workspace-navigation" id="workspace-search" placeholder="Tìm trang hoặc bộ thẻ..." aria-label="Tìm trang hoặc bộ thẻ" aria-controls="workspace-search-results" aria-expanded="false" autocomplete="off">
@@ -103,11 +107,6 @@
                 </div>
             </header>
 
-            <!-- Floating Sidebar Toggle Button -->
-            <button class="sidebar-toggle-btn" id="sidebar-toggle" aria-label="Ẩn hoặc hiện thanh điều hướng" title="Ẩn thanh bên để tập trung học">
-                <i class="fas fa-indent"></i>
-            </button>
-
             <!-- TAB 0: HOME (Trang chủ) -->
             <div id="tab-content-kanban" class="tab-pane">
                 <header class="main-header">
@@ -120,9 +119,11 @@
                     </select>
                     <button class="btn btn-primary" id="btn-new-task"><i class="fas fa-plus"></i> Thêm công việc</button>
                 </div>
-                <p id="kanban-status" role="status" aria-live="polite"></p>
-                <button class="btn btn-secondary" id="kanban-login" hidden>Đăng nhập để lưu công việc</button>
-                <button class="btn btn-secondary" id="kanban-reload" hidden>Thử tải lại</button>
+                <div class="kanban-notice">
+                    <p id="kanban-status" role="status" aria-live="polite"></p>
+                    <button class="btn btn-secondary" id="kanban-login" hidden>Đăng nhập để lưu công việc</button>
+                    <button class="btn btn-secondary" id="kanban-reload" hidden>Thử tải lại</button>
+                </div>
                 <div class="kanban-board-grid">
                     <section class="kanban-column col-todo" aria-label="Chưa bắt đầu">
                         <div class="column-header"><h2>Chưa bắt đầu <span id="todo-count">0</span></h2><button class="btn-add-col-task" data-status="Todo" title="Thêm việc chưa bắt đầu">+</button></div>
@@ -139,18 +140,12 @@
                 </div>
             </div>
             <div id="tab-content-home" class="tab-pane active">
-                <header class="main-header">
-                    <div class="header-info">
-                        <h1>Trang chủ</h1>
-                        <p>Chào mừng bạn trở lại với MindSprintAI. Hãy cùng củng cố kiến thức mỗi ngày!</p>
-                    </div>
-                </header>
-
+                <div class="home-hero">
                 <!-- Home welcome; the single gradient orb belongs to AI Notebook -->
                 <div class="welcome-banner">
                     <div class="welcome-banner-content">
-                        <span class="welcome-badge">Mỗi ngày, một chút tiến bộ</span>
-                        <h2>Hôm nay bạn muốn củng cố kiến thức gì?</h2>
+                        <span class="welcome-badge"><i class="fas fa-seedling" aria-hidden="true"></i> Mỗi ngày, một chút tiến bộ</span>
+                        <h1>Hôm nay bạn muốn củng cố kiến thức gì?</h1>
                         <p>Ôn lại một bộ thẻ, kiểm tra điều đã nhớ, rồi ghi chú những điều muốn tìm hiểu thêm.</p>
                         <div class="welcome-banner-buttons">
                             <button class="btn btn-primary" id="home-start-quiz-btn">
@@ -202,6 +197,7 @@
                         </div>
                     </div>
                 </div>
+                </div>
 
                 <!-- Suggested Decks list -->
                 <div class="home-suggestions-section">
@@ -234,7 +230,7 @@
                 <div class="overview-stats-grid">
                     <div class="overview-stat-card glass-panel">
                         <div class="overview-card-header">
-                            <i class="fas fa-sparkles" style="color: var(--accent-ink); margin-right: var(--space-step-8);"></i>
+                            <i class="fas fa-wand-magic-sparkles" style="color: var(--accent-ink); margin-right: var(--space-step-8);"></i>
                             <span>Điểm thành thạo chung</span>
                         </div>
                         <h2 class="overview-card-val" id="overview-mastery-score">0/100</h2>
