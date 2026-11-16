@@ -12,6 +12,7 @@ parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument("base", nargs="?", default="http://localhost:8080")
 parser.add_argument("--recovery", action="store_true")
 parser.add_argument("--ai", action="store_true")
+parser.add_argument("--pace", action="store_true", help="Pause briefly between requests for resource sampling")
 args = parser.parse_args()
 base = args.base.rstrip("/")
 if args.recovery and base not in ("http://localhost:8080", "http://127.0.0.1:8080"):
@@ -20,6 +21,8 @@ token = None
 
 
 def request(path, method="GET", body=None, expected=200, authenticated=True, origin=None):
+    if args.pace:
+        time.sleep(0.5)
     headers = {"Content-Type": "application/json", "User-Agent": "MindSprint-Selfhost-Check/1.0"}
     if token and authenticated:
         headers["Authorization"] = "Bearer " + token
