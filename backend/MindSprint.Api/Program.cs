@@ -129,6 +129,9 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.UseRateLimiter();
 app.MapControllers();
+// #108: route API không tồn tại trả JSON cùng dạng lỗi của API (không phải 404 rỗng, càng không phải HTML trang chủ).
+app.MapFallback("/api/{**path}", () => Results.NotFound(new { message = "Không tìm thấy chức năng này trên máy chủ.", code = "not_found" }))
+    .AllowAnonymous();
 app.MapGet("/healthz", () => Results.Ok(new { status = "ok" })).AllowAnonymous();
 app.MapHealthChecks("/readyz", new HealthCheckOptions
 {
