@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mindsprintai-cache-v77';
+const CACHE_NAME = 'mindsprintai-cache-v78';
 const MATH_FONTS = [
   'AMS-Regular', 'Caligraphic-Bold', 'Caligraphic-Regular', 'Fraktur-Bold', 'Fraktur-Regular',
   'Main-Bold', 'Main-BoldItalic', 'Main-Italic', 'Main-Regular', 'Math-BoldItalic', 'Math-Italic',
@@ -14,7 +14,7 @@ const ASSETS = [
   './cockpit.js?v=66',
   './assets/mindsprint-avatar-site.png',
   './ui-refresh.css?v=10',
-  './script.js?v=67',
+  './script.js?v=68',
   './ui.js?v=59',
   './vocab_data.js?v=24',
   './api.js?v=57',

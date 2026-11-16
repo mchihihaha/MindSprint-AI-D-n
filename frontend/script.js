@@ -1069,6 +1069,15 @@ document.addEventListener('DOMContentLoaded', () => {
     // INITIALIZATION & SW REGISTER
     // ==========================================================================
     function init() {
+        // #110: mở /?reset-cache=1 để xóa cache Service Worker của origin này rồi tải lại bản mới nhất.
+        // Chỉ xóa cache + gỡ Service Worker; KHÔNG đụng localStorage (phiên đăng nhập, cài đặt vẫn giữ).
+        if (new URLSearchParams(location.search).has('reset-cache') && 'serviceWorker' in navigator && 'caches' in window) {
+            Promise.all([
+                caches.keys().then(keys => Promise.all(keys.filter(k => /^mindsprint(ai)?-cache-/.test(k)).map(k => caches.delete(k)))),
+                navigator.serviceWorker.getRegistrations().then(regs => Promise.all(regs.map(r => r.unregister())))
+            ]).finally(() => location.replace(location.pathname));
+            return;
+        }
         // Register PWA Service Worker
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
