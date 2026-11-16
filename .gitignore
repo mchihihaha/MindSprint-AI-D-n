@@ -56,3 +56,6 @@ release/
 # Local worktrees and design exploration
 .worktrees/
 .taste-skill/
+
+# Goi chan doan (scripts/collect-diagnostics.ps1, issue #115) - co the chua du lieu may, khong commit
+diagnostics/
