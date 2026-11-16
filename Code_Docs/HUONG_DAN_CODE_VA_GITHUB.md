@@ -213,32 +213,14 @@ public async Task<IActionResult> Delete(string externalId, [FromQuery] int? vers
 
 ---
 
-## 3. GITHUB — 5 NHÁNH (BRANCHES) & PHÂN CHIA COMMITS 5 THÀNH VIÊN
+## 3. Đối chiếu đóng góp trên GitHub
 
-Kho lưu trữ GitHub của dự án được phân chia thành **5 nhánh chính thức** tương ứng với 5 thành viên trong nhóm. Mỗi thành viên chịu trách nhiệm đẩy các commit thuộc phạm vi tính năng của mình:
+Mỗi báo cáo cá nhân liên kết tới issue và bằng chứng bàn giao của thành viên nhóm Lập trình Web.
 
-| STT | Thành viên | Nhánh GitHub (Branch) | Nhiệm vụ chính & Các Commit tiêu biểu |
-| :--- | :--- | :--- | :--- |
-| **1** | **Nguyễn Trần Bảo Duy** | `branch-1-duy-backend-srs` | **Backend Core & Thuật toán SRS:**<br>• `cd4ee16`: feat(kanban): persist ordered drops and accessible reordering<br>• `f43701b`: feat(srs): implement SuperMemo SM-2 calculation engine<br>• `b361267`: test: validate Sprint 2 tutor against latest main |
-| **2** | **Đỗ Đình Phan Diễn** | `branch-2-dien-frontend-auth` | **Xác thực JWT, Phân lập NFR-03 & PWA Offline:**<br>• `5fa0473`: fix+docs(nfr03): fix PostgreSQL migrations & update NFR-03 report<br>• `cc81fc7`: Merge branch 'dien/issue-52-nfr11-browser-offline' into main<br>• `6f4be74`: docs(issue-44): update verification report 20/20 PASS |
-| **3** | **Vũ Đình Hùng** | `branch-3-hung-ui-speech` | **UI Responsive & Giọng nói tiếng Việt:**<br>• `fdc5343`: feat(notebook): add Vietnamese speech controls and mobile touch support<br>• `42879aa`: docs: link PR 70 and issue progress reports<br>• `c914e20`: feat(validation): implement client-side input sanitization |
-| **4** | **Minh Chiến** | `branch-4-chien-notebook-plan` | **Sổ tay AI RAG & Kiểm thử tải NFR-02:**<br>• `f0fdef6`: feat(issue-36): generate personalized exam study plans<br>• `2721d71`: test: document issue 43 NFR-02 results (500+ rps)<br>• `71aab4d`: Merge pull request #79 from tungtungsahul/codex/issue-43-nfr02 |
-| **5** | **Tuấn Linh** | `branch-5-linh-database-uml` | **Cơ sở dữ liệu 3NF, UML & Điểm yếu Weak Areas:**<br>• `c5a41fd`: fix: make weak area DTOs EF translatable<br>• `b890dcc`: fix(migrations): fix duplicate Up/Down and snapshot<br>• `e14a79b`: docs(uml): complete comprehensive ERD, Use Case and Activity diagrams |
-
-### 3.1. Các lệnh Git kiểm tra và chuyển nhánh
-Người dùng có thể kiểm tra danh sách 5 nhánh tại thư mục dự án bằng các câu lệnh git sau:
-
-```bash
-# Kiểm tra danh sách nhánh cục bộ
-git branch
-
-# Chuyển đổi sang nhánh của từng thành viên để kiểm tra code
-git checkout branch-1-duy-backend-srs
-git checkout branch-2-dien-frontend-auth
-git checkout branch-3-hung-ui-speech
-git checkout branch-4-chien-notebook-plan
-git checkout branch-5-linh-database-uml
-
-# Xem lịch sử commit của nhánh hiện tại
-git log --oneline -n 5
-```
+| Thành viên | Tài khoản GitHub | Báo cáo cá nhân |
+| --- | --- | --- |
+| Nguyễn Trần Bảo Duy | [@tungtungsahul](https://github.com/tungtungsahul) | [Xem báo cáo](../Bao_cao/bc_NguyenTranBaoDuy.md) |
+| Đỗ Đình Phan Diễn | [@phandien665-prog](https://github.com/phandien665-prog) | [Xem báo cáo](../Bao_cao/bc_DoDinhPhanDien.md) |
+| Vũ Đình Hùng | [@James-Lloyd20](https://github.com/James-Lloyd20) | [Xem báo cáo](../Bao_cao/bc_VuDinhHung.md) |
+| Nguyễn Minh Chiến | [@mchihihaha](https://github.com/mchihihaha) | [Xem báo cáo](../Bao_cao/bc_MinhChien.md) |
+| Nguyễn Tuấn Linh | [@tuanlinh0511](https://github.com/tuanlinh0511) | [Xem báo cáo](../Bao_cao/bc_TuanLinh.md) |
