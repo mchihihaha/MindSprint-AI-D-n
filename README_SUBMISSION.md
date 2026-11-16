@@ -13,14 +13,14 @@
 MindSprint-AI-D-n/
 ├── Bao_cao/                               # Thư mục Báo cáo theo yêu cầu
 │   ├── Bao_cao_Tong_hop.md                # Báo cáo tổng hợp toàn diện (Mục 1, 2, 3, 4 + TLTK)
-│   ├── bc_NguyenTranBaoDuy.md             # Báo cáo cá nhân: Nguyễn Trần Bảo Duy (Backend Lead)
-│   ├── bc_DoDinhPhanDien.md               # Báo cáo cá nhân: Đỗ Đình Phan Diễn (Frontend & Auth)
-│   ├── bc_VuDinhHung.md                   # Báo cáo cá nhân: Vũ Đình Hùng (Responsive & Speech AI)
-│   ├── bc_MinhChien.md                    # Báo cáo cá nhân: Minh Chiến (Notebook AI & Load Test)
-│   └── bc_TuanLinh.md                     # Báo cáo cá nhân: Tuấn Linh (CSDL 3NF & UML)
+│   ├── bc_NguyenTranBaoDuy.md             # Báo cáo cá nhân môn Web của Nguyễn Trần Bảo Duy
+│   ├── bc_DoDinhPhanDien.md               # Báo cáo cá nhân môn Web của Đỗ Đình Phan Diễn
+│   ├── bc_VuDinhHung.md                   # Báo cáo cá nhân môn Web của Vũ Đình Hùng
+│   ├── bc_MinhChien.md                    # Báo cáo cá nhân môn Web của Nguyễn Minh Chiến
+│   └── bc_TuanLinh.md                     # Báo cáo cá nhân môn Web của Nguyễn Tuấn Linh
 │
 ├── Code_Docs/                             # Tài liệu kỹ thuật mã nguồn & GitHub
-│   └── HUONG_DAN_CODE_VA_GITHUB.md        # Chi tiết Connect DB, CRUD Sản phẩm & 5 nhánh Git
+│   └── HUONG_DAN_CODE_VA_GITHUB.md        # Kết nối CSDL, CRUD và đối chiếu đóng góp GitHub
 │
 ├── backend/                               # Thư mục mã nguồn Backend (ASP.NET Core 8 Web API)
 │   └── MindSprint.Api/                    # Controllers, Models, Data (EF Core 8), Services
@@ -41,12 +41,15 @@ MindSprint-AI-D-n/
 3. **Triển khai:** Frontend (PWA, Web Speech API, Cockpit UI), Backend (ASP.NET Core 8, EF Core 8, PostgreSQL, JWT Token Rotation), Kiểm thử (Unit Test, Integration Test, NFR-01, NFR-02, NFR-03, NFR-07, NFR-11).
 4. **Kết quả & Hướng phát triển:** Demo kết quả, kết luận, kế hoạch phát triển tương lai và danh mục tài liệu tham khảo chuẩn học thuật.
 
-### 2. Code & GitHub (`Code_Docs/HUONG_DAN_CODE_VA_GITHUB.md`)
+### 2. Báo cáo cá nhân môn Lập trình Web
+
+- [Nguyễn Trần Bảo Duy](Bao_cao/bc_NguyenTranBaoDuy.md)
+- [Đỗ Đình Phan Diễn](Bao_cao/bc_DoDinhPhanDien.md)
+- [Vũ Đình Hùng](Bao_cao/bc_VuDinhHung.md)
+- [Nguyễn Minh Chiến](Bao_cao/bc_MinhChien.md)
+- [Nguyễn Tuấn Linh](Bao_cao/bc_TuanLinh.md)
+
+### 3. Code & GitHub (`Code_Docs/HUONG_DAN_CODE_VA_GITHUB.md`)
 1. **Connect DB:** Chi tiết kết nối PostgreSQL với `Npgsql`, chuỗi kết nối, `AppDbContext` và tự động migration.
 2. **CRUD Quản lý sản phẩm (SP):** Triển khai đầy đủ Create, Read, Update, Delete trong `FlashcardsController.cs` kèm Optimistic Concurrency Control (`Version`).
-3. **GitHub 5 nhánh (5 Branches):** Đã phân nhánh và liên kết commit tương ứng với 5 thành viên:
-   * `branch-1-duy-backend-srs` (Nguyễn Trần Bảo Duy)
-   * `branch-2-dien-frontend-auth` (Đỗ Đình Phan Diễn)
-   * `branch-3-hung-ui-speech` (Vũ Đình Hùng)
-   * `branch-4-chien-notebook-plan` (Minh Chiến)
-   * `branch-5-linh-database-uml` (Tuấn Linh)
+3. [Đối chiếu đóng góp trên GitHub](Code_Docs/HUONG_DAN_CODE_VA_GITHUB.md#3-đối-chiếu-đóng-góp-trên-github).

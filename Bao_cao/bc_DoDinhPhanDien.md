@@ -1,54 +1,26 @@
-# BÁO CÁO CÁ NHÂN — ĐÓNG GÓP DỰ ÁN MINDSPRINT AI
+# Báo cáo cá nhân môn Lập trình Web
 
-* **Họ và tên:** Đỗ Đình Phan Diễn
-* **MSSV / Tài khoản:** `phandien665-prog`
-* **Vai trò trong nhóm:** Kỹ sư Frontend & Bảo mật phân quyền (Frontend & Security Specialist)
-* **Nhánh GitHub phụ trách:** `dien/issue-44-nfr03-auth-isolation`, `dien/issue-42-nfr01-performance`, `dien/issue-52-nfr11-browser-offline`
+- **Sinh viên** Đỗ Đình Phan Diễn
+- **Tài khoản GitHub** [@phandien665-prog](https://github.com/phandien665-prog)
+- **Đề tài** Hệ thống hỗ trợ tự học MindSprint AI
+- **Ngày đối chiếu** 16/11/2026
 
----
+Tôi phát triển giao diện Kanban và chức năng tạo thẻ AI trong Thư viện. Tôi cũng viết kịch bản kiểm thử ứng dụng web và kiểm chứng bản đóng gói Docker trên laptop.
 
-## 1. PHẠM VI CÔNG VIỆC VÀ TRÁCH NHIỆM CHÍNH
-1. **Phát triển Tầng Bảo mật & Phân quyền Xác thực (NFR-03 & Issue #44):**
-   * Xây dựng luồng xác thực JWT Bearer kết hợp Refresh Token Rotation.
-   * Đảm bảo tính cô lập tuyệt đối dữ liệu giữa các tài khoản: Chặn 100% các lỗ hổng IDOR (Insecure Direct Object Reference) tại tất cả các endpoints CRUD Thẻ học và Sổ tay.
-   * Xây dựng bộ test cô lập tài khoản tự động (`backend/AuthIsolationChecks`).
-2. **Tối ưu hóa Hiệu năng Frontend & Trải nghiệm người dùng (NFR-01 & Issue #42):**
-   * Tối ưu hóa các chỉ số Web Vitals: LCP (Largest Contentful Paint), FID (First Input Delay), CLS (Cumulative Layout Shift).
-   * Triển khai Virtual List và Debounce cho thanh tìm kiếm thẻ học giúp giảm 80% số lượng re-render DOM không cần thiết.
-3. **Phát triển Cơ chế Ngoại tuyến PWA & Đồng bộ (NFR-11 & Issue #52):**
-   * Thiết lập Service Worker lưu cache các tài nguyên tĩnh và tạo cơ chế offline queue với `localStorage`.
-   * Đảm bảo người học vẫn có thể xem và lật thẻ ôn tập bình thường ngay cả khi thiết bị mất kết nối Internet hoàn toàn.
+## Tính năng đã thực hiện
 
----
+| Issue | Phần việc thực hiện | Minh chứng |
+| --- | --- | --- |
+| [#6](https://github.com/tungtungsahul/MindSprint-AI-D-n/issues/6) | Dựng giao diện Kanban ba cột Chưa bắt đầu, Đang làm và Hoàn thành. | [`0ca24f7`](https://github.com/tungtungsahul/MindSprint-AI-D-n/commit/0ca24f7), [ghi nhận tích hợp vào ứng dụng](https://github.com/tungtungsahul/MindSprint-AI-D-n/issues/6#issuecomment-5986342195) |
+| [#10](https://github.com/tungtungsahul/MindSprint-AI-D-n/issues/10) | Xây dựng luồng thêm, sửa, xóa công việc và kéo thả giữa các cột. Phần lưu thứ tự kéo thả chi tiết được Bảo Duy tích hợp tiếp trong PR #41. | [`0ca24f7`](https://github.com/tungtungsahul/MindSprint-AI-D-n/commit/0ca24f7), [PR #41](https://github.com/tungtungsahul/MindSprint-AI-D-n/pull/41) |
+| [#13](https://github.com/tungtungsahul/MindSprint-AI-D-n/issues/13) | Thêm nút **Tạo thẻ bằng AI** trong Thư viện. Giao diện gọi API tạo thẻ, hiển thị bản xem trước, báo rõ khi số thẻ nhận được ít hơn yêu cầu và lưu các thẻ người dùng chọn. | [`c000d72`](https://github.com/tungtungsahul/MindSprint-AI-D-n/commit/c000d72), [kết quả chạy thử trên Edge](https://github.com/tungtungsahul/MindSprint-AI-D-n/issues/13#issuecomment-6235166644) |
 
-## 2. CHI TIẾT CÁC ĐÓNG GÓP KỸ THUẬT & MÃ NGUỒN
+## Kiểm thử và đóng gói
 
-### 2.1. Module Xác thực & Đăng nhập Frontend/Backend
-* **Mã nguồn Frontend:** `frontend/auth.js`, `frontend/api.js`
-* **Mã nguồn Backend:** `backend/MindSprint.Api/Controllers/AuthController.cs`, `Services/TokenService.cs`
-* **Nghiệp vụ thực hiện:**
-  * Tự động gửi kèm header `Authorization: Bearer <token>` trên mỗi request API.
-  * Tự động bắt mã lỗi `401 Unauthorized` để kích hoạt endpoint `/api/auth/refresh` ngầm, giúp trải nghiệm người dùng không bị gián đoạn khi token hết hạn sau 15 phút.
-
-### 2.2. Kiểm thử và Nghiệm thu NFR-03 (Bảo mật & Phân lập tài khoản)
-* Chạy bộ kiểm thử tự động gồm 20 kịch bản:
-  * Kiểm tra User A không thể sửa thẻ học của User B qua `PUT /api/flashcards/{id}`.
-  * Kiểm tra User A không thể xóa Task Kanban của User B qua `DELETE /api/tasks/{id}`.
-  * Kiểm tra Refresh Token đã bị thu hồi (Revoked) thì không thể tái sử dụng để lấy Access Token mới.
-* **Kết quả:** 20/20 Test Cases PASSED.
-
----
-
-## 3. LỊCH SỬ COMMITS TIÊU BIỂU TRÊN GITHUB
-* `cc81fc7`: Merge branch 'dien/issue-52-nfr11-browser-offline' into main
-* `6f4be74`: docs(issue-44): update verification report with 20/20 ConcurrencyChecks PASS
-* `4a1c890`: feat(auth): implement secure token storage and automatic refresh interceptor
-* `9b872f1`: perf(fe): optimize bundle size, implement service worker for offline fallback
-* `e1284a6`: test(nfr01): add web-vitals automated performance test suite
-
----
-
-## 4. TỰ ĐÁNH GIÁ MỨC ĐỘ HOÀN THÀNH
-* **Tỷ lệ hoàn thành nhiệm vụ:** 100%
-* **Đóng góp nổi bật:** Thiết lập nền tảng bảo mật vững chắc cho ứng dụng, đảm bảo tuân thủ nghiêm ngặt chuẩn NFR về bảo mật và mang lại khả năng hoạt động offline đáng tin cậy.
-* **Tự xếp loại:** Xuất sắc (A+)
+| Issue | Phần việc thực hiện | Minh chứng |
+| --- | --- | --- |
+| [#42](https://github.com/tungtungsahul/MindSprint-AI-D-n/issues/42) | Bổ sung bộ đo độ trễ API ở tải 20 người dùng ảo và bộ đo chỉ số giao diện. Báo cáo thử tại máy cục bộ ghi p95 của API đọc flashcard là 283 ms trong lượt đo này. | [`e7dc247`](https://github.com/tungtungsahul/MindSprint-AI-D-n/commit/e7dc247), [báo cáo NFR-01](../ISSUE-42-REPORT.md) |
+| [#44](https://github.com/tungtungsahul/MindSprint-AI-D-n/issues/44) | Kiểm thử phiên đăng nhập, quyền truy cập dữ liệu theo tài khoản và xung đột khi gia hạn phiên. Báo cáo ghi 118/118 kiểm tra đạt trong các bộ đã chạy, trong đó 40 kiểm tra thuộc AuthIsolationChecks. | [PR #75](https://github.com/tungtungsahul/MindSprint-AI-D-n/pull/75), [`5fa0473`](https://github.com/tungtungsahul/MindSprint-AI-D-n/commit/5fa0473), [báo cáo NFR-03](../ISSUE-44-REPORT.md) |
+| [#52](https://github.com/tungtungsahul/MindSprint-AI-D-n/issues/52) | Bổ sung kiểm thử PWA, cache tài nguyên và hành vi khi mất kết nối. Báo cáo ghi 44/44 kiểm tra đạt, có ca trên Chromium/Edge và ca mô phỏng thiết bị di động. | [PR #78](https://github.com/tungtungsahul/MindSprint-AI-D-n/pull/78), [`f7a0a36`](https://github.com/tungtungsahul/MindSprint-AI-D-n/commit/f7a0a36), [báo cáo NFR-11](../ISSUE-52-REPORT.md) |
+| [#107](https://github.com/tungtungsahul/MindSprint-AI-D-n/issues/107) | Kiểm chứng build Docker từ mã nguồn sạch trên bản laptop PostgreSQL ban đầu. Lượt xác minh lại sau khi chuyển sang SQL Server nằm trong PR #124 của Bảo Duy. | [`b25eb17`](https://github.com/tungtungsahul/MindSprint-AI-D-n/commit/b25eb17), [báo cáo build ban đầu](https://github.com/tungtungsahul/MindSprint-AI-D-n/issues/107#issuecomment-6774163710), [PR #124](https://github.com/tungtungsahul/MindSprint-AI-D-n/pull/124) |
+| [#113](https://github.com/tungtungsahul/MindSprint-AI-D-n/issues/113) | Viết kịch bản đo thời gian khởi động và tài nguyên Docker, cập nhật báo cáo theo SQL Server. Lượt đo trên stack thử nghiệm tách riêng do Bảo Duy tích hợp qua PR #126. Issue đang mở. | [`7f8fd17`](https://github.com/tungtungsahul/MindSprint-AI-D-n/commit/7f8fd17), [`f64ea30`](https://github.com/tungtungsahul/MindSprint-AI-D-n/commit/f64ea30), [PR #126](https://github.com/tungtungsahul/MindSprint-AI-D-n/pull/126) |

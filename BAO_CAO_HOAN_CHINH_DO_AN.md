@@ -9,12 +9,12 @@
 * **Bản triển khai trực tiếp (Live Production):**
   * **Frontend (Vercel):** [https://mindsprint-ai-d-n-frontend.vercel.app/](https://mindsprint-ai-d-n-frontend.vercel.app/)
   * **Backend API (Render Cloud):** [https://mindsprint-api-zyur.onrender.com](https://mindsprint-api-zyur.onrender.com)
-* **Danh sách nhóm sinh viên thực hiện (5 thành viên):**
-  1. **Nguyễn Trần Bảo Duy** (MSSV / GitHub: `tungtungsahul` / `baoduy4bbt360`) — **Trưởng nhóm / Backend Lead**
-  2. **Đỗ Đình Phan Diễn** (MSSV / GitHub: `phandien665-prog`) — **Frontend & Security Specialist**
-  3. **Vũ Đình Hùng** (MSSV / GitHub: `James-Lloyd20` / `vudinhhung2906`) — **UI/UX & Voice AI Specialist**
-  4. **Minh Chiến** (MSSV / GitHub: `mchihihaha` / `BAI250011`) — **AI Notebook & Load Test Specialist**
-  5. **Tuấn Linh** (MSSV / GitHub: `tuanlinh0511` / `BAI252516`) — **Database Architect & UML Specialist**
+* **Danh sách nhóm Lập trình Web (5 thành viên)**
+  1. **Nguyễn Trần Bảo Duy** ([@tungtungsahul](https://github.com/tungtungsahul))
+  2. **Đỗ Đình Phan Diễn** ([@phandien665-prog](https://github.com/phandien665-prog))
+  3. **Vũ Đình Hùng** ([@James-Lloyd20](https://github.com/James-Lloyd20))
+  4. **Nguyễn Minh Chiến** ([@mchihihaha](https://github.com/mchihihaha))
+  5. **Nguyễn Tuấn Linh** ([@tuanlinh0511](https://github.com/tuanlinh0511))
 
 ---
 
@@ -49,16 +49,11 @@
     * [4.2. Kết luận](#42-kết-luận)
     * [4.3. Hướng phát triển tương lai](#43-hướng-phát-triển-tương-lai)
     * [Tài liệu tham khảo](#tài-liệu-tham-khảo)
-* [PHẦN II: BÁO CÁO CÁ NHÂN TỪNG THÀNH VIÊN](#phần-ii-báo-cáo-cá-nhân-từng-thành-viên)
-  * [1. Báo cáo cá nhân: Nguyễn Trần Bảo Duy (Backend Lead)](#1-báo-cáo-cá-nhân-nguyễn-trần-bảo-duy-backend-lead)
-  * [2. Báo cáo cá nhân: Đỗ Đình Phan Diễn (Frontend & Security)](#2-báo-cáo-cá-nhân-đỗ-đình-phan-diễn-frontend--security)
-  * [3. Báo cáo cá nhân: Vũ Đình Hùng (UI/UX & Voice AI)](#3-báo-cáo-cá-nhân-vũ-đình-hùng-uiux--voice-ai)
-  * [4. Báo cáo cá nhân: Minh Chiến (AI Notebook & Load Test)](#4-báo-cáo-cá-nhân-minh-chiến-ai-notebook--load-test)
-  * [5. Báo cáo cá nhân: Tuấn Linh (Database & UML)](#5-báo-cáo-cá-nhân-tuấn-linh-database--uml)
+* [PHẦN II. Báo cáo cá nhân môn Lập trình Web](#phần-ii-báo-cáo-cá-nhân-môn-lập-trình-web)
 * [PHẦN III: HƯỚNG DẪN CODE & QUẢN TRỊ GITHUB](#phần-iii-hướng-dẫn-code--quản-trị-github)
   * [1. Kết nối cơ sở dữ liệu (Connect DB)](#1-kết-nối-cơ-sở-dữ-liệu-connect-db)
   * [2. CRUD Quản lý sản phẩm (Flashcard Items)](#2-crud-quản-lý-sản-phẩm-flashcard-items)
-  * [3. Phân chia 5 nhánh GitHub (5 Branches) và Commit của từng thành viên](#3-phân-chia-5-nhánh-github-5-branches-và-commit-của-từng-thành-viên)
+  * [3. Đối chiếu đóng góp trên GitHub](#3-đối-chiếu-đóng-góp-trên-github)
 
 ---
 
@@ -950,118 +945,17 @@ Dự án MindSprint AI đã giải quyết thành công bài toán tối ưu hó
 
 ---
 
-# PHẦN II: BÁO CÁO CÁ NHÂN TỪNG THÀNH VIÊN
+# PHẦN II. BÁO CÁO CÁ NHÂN MÔN LẬP TRÌNH WEB
 
-## 1. BÁO CÁO CÁ NHÂN: NGUYỄN TRẦN BẢO DUY (BACKEND LEAD)
+Các báo cáo ghi phần việc của từng thành viên theo issue, PR, commit và kết quả kiểm chứng. Mốc đối chiếu GitHub là ngày 16/11/2026.
 
-* **Họ và tên:** Nguyễn Trần Bảo Duy
-* **MSSV / Tài khoản:** `tungtungsahul` / `baoduy4bbt360`
-* **Vai trò trong nhóm:** Nhóm trưởng (Team Lead) & Lập trình viên Backend chính (Backend Lead)
-* **Nhánh GitHub phụ trách:** `branch-1-duy-backend-srs`
-
-### 1.1. Phạm vi công việc và trách nhiệm chính
-1. **Quản trị dự án & Điều phối nhóm:** Phân chia Issue và Milestone từ Sprint 1 đến Sprint 4; thiết lập chiến lược Git Branching và cấu hình CI/CD Pipeline (`.github/workflows/ci-cd.yml`) tự động build, test và deploy lên Render.
-2. **Kiến trúc Backend Core:** Khởi tạo dự án ASP.NET Core 8 Web API (`MindSprint.Api`), cấu hình DI Container, Middleware, CORS và Swagger UI.
-3. **Thuật toán Spaced Repetition (SM-2):** Triển khai thuật toán tính toán khoảng cách ngày ôn tập trong `SrsService.cs`.
-4. **CRUD Quản lý Thẻ học (Sản phẩm):** Xây dựng bộ điều khiển `FlashcardsController.cs` hỗ trợ đầy đủ các thao tác Thêm, Đọc, Sửa, Xóa và kiểm soát tương tranh lạc quan.
-5. **Gia sư Lập trình AI (Issue #34):** Tích hợp Gemini AI phân tích code Python/JS theo phương pháp gợi mở Socratic.
-
-### 1.2. Đóng góp kỹ thuật & Commits tiêu biểu
-* Triển khai công thức SM-2: $EF' = \max(1.3, EF + (0.1 - (5-q)(0.08 + (5-q)0.02)))$.
-* **Commits tiêu biểu:**
-  * `cd4ee16`: feat(kanban): persist ordered drops and accessible reordering (#10)
-  * `b361267`: test: validate Sprint 2 tutor against latest main
-  * `f43701b`: feat(srs): implement SuperMemo SM-2 calculation engine and tests
-* **Tự xếp loại:** Xuất sắc (A+)
-
----
-
-## 2. BÁO CÁO CÁ NHÂN: ĐỖ ĐÌNH PHAN DIỄN (FRONTEND & SECURITY)
-
-* **Họ và tên:** Đỗ Đình Phan Diễn
-* **MSSV / Tài khoản:** `phandien665-prog`
-* **Vai trò trong nhóm:** Kỹ sư Frontend & Bảo mật phân quyền (Frontend & Security Specialist)
-* **Nhánh GitHub phụ trách:** `branch-2-dien-frontend-auth`
-
-### 2.1. Phạm vi công việc và trách nhiệm chính
-1. **Bảo mật & Phân quyền (NFR-03 & Issue #44):** Triển khai luồng xác thực JWT Bearer kết hợp Refresh Token Rotation. Đảm bảo cô lập dữ liệu 100% giữa các tài khoản, ngăn chặn hoàn toàn lỗ hổng IDOR.
-2. **Tối ưu hóa Hiệu năng Frontend (NFR-01 & Issue #42):** Tối ưu hóa chỉ số Web Vitals (LCP, FID, CLS). Triển khai Virtual List và Debounce tìm kiếm giúp giảm 80% DOM re-rendering.
-3. **PWA Ngoại tuyến (NFR-11 & Issue #52):** Thiết lập Service Worker lưu cache tài nguyên tĩnh kết hợp offline queue qua `localStorage`.
-
-### 2.2. Đóng góp kỹ thuật & Commits tiêu biểu
-* Bộ kiểm thử cô lập tài khoản tự động đạt 20/20 kịch bản PASS (`backend/AuthIsolationChecks`).
-* **Commits tiêu biểu:**
-  * `5fa0473`: fix+docs(nfr03): fix PostgreSQL migrations & update NFR-03 118/118 test report (#44)
-  * `0bdb76d`: docs: update NFR-03 acceptance status and Sprint 4 test evidence
-  * `cc81fc7`: Merge branch 'dien/issue-52-nfr11-browser-offline' into main
-* **Tự xếp loại:** Xuất sắc (A+)
-
----
-
-## 3. BÁO CÁO CÁ NHÂN: VŨ ĐÌNH HÙNG (UI/UX & VOICE AI)
-
-* **Họ và tên:** Vũ Đình Hùng
-* **MSSV / Tài khoản:** `James-Lloyd20` / `vudinhhung2906`
-* **Vai trò trong nhóm:** Kỹ sư Giao diện người dùng & Đa phương tiện AI (UI/UX & Voice AI Specialist)
-* **Nhánh GitHub phụ trách:** `branch-3-hung-ui-speech`
-
-### 3.1. Phạm vi công việc và trách nhiệm chính
-1. **Giao diện Responsive Mobile-First (Issue #16):** Tối ưu hóa toàn bộ giao diện của phân hệ Sổ tay AI và Bảng Kanban tương thích hoàn hảo trên Mobile, Tablet và Desktop.
-2. **Nhập liệu bằng Giọng nói tiếng Việt (Issue #37):** Sử dụng Web Speech Recognition API hỗ trợ nhận dạng giọng nói tiếng Việt thời gian thực kèm tính năng Text-to-Speech (TTS) đọc to đáp án.
-3. **Validation Dữ liệu & XSS Prevention (Issue #11 & NFR-04):** Xây dựng bộ kiểm tra tính hợp lệ dữ liệu đầu vào tại Client và cơ chế làm sạch HTML (HTML Sanitization).
-
-### 3.2. Đóng góp kỹ thuật & Commits tiêu biểu
-* Triển khai bộ điều khiển `webkitSpeechRecognition` với `lang = 'vi-VN'` và cơ chế fallback mượt mà khi trình duyệt không có microphone.
-* **Commits tiêu biểu:**
-  * `42879aa`: docs: link PR 70 and issue progress reports
-  * `fdc5343`: feat(notebook): add Vietnamese speech controls and mobile touch support
-  * `c914e20`: feat(validation): implement client-side form validation and sanitize inputs against XSS
-* **Tự xếp loại:** Giỏi (A)
-
----
-
-## 4. BÁO CÁO CÁ NHÂN: MINH CHIẾN (AI NOTEBOOK & LOAD TEST)
-
-* **Họ và tên:** Minh Chiến
-* **MSSV / Tài khoản:** `mchihihaha` / `BAI250011`
-* **Vai trò trong nhóm:** Kỹ sư Trí tuệ nhân tạo & Kiểm thử tải hệ thống (AI & Load Testing Specialist)
-* **Nhánh GitHub phụ trách:** `branch-4-chien-notebook-plan`
-
-### 4.1. Phạm vi công việc và trách nhiệm chính
-1. **Sổ tay AI RAG & Cache thông minh (Issue #12):** Xây dựng luồng nạp tài liệu đa nguồn (văn bản, link URL bài báo, file tài liệu). Triển khai cơ chế băm nội dung SHA-256 cho `NotebookGenerationCaches` giúp tái sử dụng ngay kết quả AI đã sinh trong < 50ms.
-2. **Lập kế hoạch học thông minh (Issue #36 - Study Planner):** Tích hợp AI phân rã mục tiêu học tập thành các task cụ thể và đồng bộ trực tiếp vào bảng Kanban.
-3. **Kiểm thử Chịu tải NFR-02 (Load & Stress Testing):** Viết kịch bản kiểm thử tải bằng Autocannon và k6 (`tests/Nfr02/load.mjs`).
-
-### 4.2. Đóng góp kỹ thuật & Commits tiêu biểu
-* Kết quả test tải: Đạt **520 requests/second**, tỷ lệ lỗi **0.00%**, độ trễ trung vị p50 = 32ms.
-* **Commits tiêu biểu:**
-  * `71aab4d`: Merge pull request #79 from tungtungsahul/codex/issue-43-nfr02
-  * `2721d71`: test: document issue 43 NFR-02 results with 500+ rps throughput
-  * `f0fdef6`: feat(issue-36): generate personalized exam study plans
-* **Tự xếp loại:** Xuất sắc (A+)
-
----
-
-## 5. BÁO CÁO CÁ NHÂN: TUẤN LINH (DATABASE & UML)
-
-* **Họ và tên:** Tuấn Linh
-* **MSSV / Tài khoản:** `tuanlinh0511` / `BAI252516`
-* **Vai trò trong nhóm:** Kiến trúc sư Cơ sở dữ liệu & Chuyên viên Mô hình hóa Hệ thống (Database Architect & UML Specialist)
-* **Nhánh GitHub phụ trách:** `branch-5-linh-database-uml`
-
-### 5.1. Phạm vi công việc và trách nhiệm chính
-1. **Thiết kế & Chuẩn hóa CSDL 3NF (Issue #20):** Xác định 12 thực thể, phân tích mối quan hệ, chứng minh chuẩn hóa 1NF $\rightarrow$ 2NF $\rightarrow$ 3NF, thiết kế ERD và Database Diagram chi tiết.
-2. **Mô hình hóa Hệ thống UML:** Xây dựng sơ đồ Use Case tổng quát/phân rã, bảng đặc tả Use Case, 7 sơ đồ Activity Diagrams, Class Diagram theo mô hình MVC và Deployment Diagram.
-3. **Module Điểm yếu Cá nhân hóa (Issue #35 - Weak Areas):** Thiết kế bảng `WeakAreas` và API ghi nhận các lỗi sai thường gặp để AI tự động đề xuất bộ thẻ ôn trọng tâm.
-4. **Kiểm thử Tương tranh NFR-07 & Sao lưu NFR-09:** Thực nghiệm kiểm tra Optimistic Locking (20/20 PASS) và xây dựng quy trình tự động sao lưu/phục hồi dữ liệu PostgreSQL.
-
-### 5.2. Đóng góp kỹ thuật & Commits tiêu biểu
-* Thiết lập toàn bộ chỉ mục (Unique Index), khóa ngoại Cascade và cấu hình `.IsConcurrencyToken()` trên `Version`.
-* **Commits tiêu biểu:**
-  * `c5a41fd`: fix: make weak area DTOs EF translatable
-  * `b890dcc`: fix(migrations): fix duplicate Up/Down in AddWeakArea.Designer and add Data namespace to snapshot
-  * `e14a79b`: docs(uml): complete comprehensive ERD, Use Case and Activity diagrams
-* **Tự xếp loại:** Xuất sắc (A+)
+| Thành viên | Phần việc chính |
+| --- | --- |
+| [Nguyễn Trần Bảo Duy](Bao_cao/bc_NguyenTranBaoDuy.md) | Sổ tay AI, nhập tài liệu, Gia sư, đăng nhập Google và tích hợp bản chạy trên laptop |
+| [Đỗ Đình Phan Diễn](Bao_cao/bc_DoDinhPhanDien.md) | Kanban, tạo thẻ AI, kiểm thử ứng dụng và đóng gói Docker |
+| [Vũ Đình Hùng](Bao_cao/bc_VuDinhHung.md) | Kiểm tra dữ liệu đầu vào, giao diện trên màn hình nhỏ và hỏi đáp bằng giọng nói |
+| [Nguyễn Minh Chiến](Bao_cao/bc_MinhChien.md) | Gia hạn phiên, đồng bộ dữ liệu học, cache Sổ tay AI, bản lập kế hoạch học và kiểm thử tải |
+| [Nguyễn Tuấn Linh](Bao_cao/bc_TuanLinh.md) | Migration, giao diện xác thực, dữ liệu mẫu, ôn tập theo điểm yếu và kiểm thử cơ sở dữ liệu |
 
 ---
 
@@ -1224,30 +1118,6 @@ public async Task<IActionResult> Delete(string externalId, [FromQuery] int? vers
 
 ---
 
-## 3. PHÂN CHIA 5 NHÁNH GITHUB (5 BRANCHES) VÀ COMMIT CỦA TỪNG THÀNH VIÊN
+## 3. Đối chiếu đóng góp trên GitHub
 
-Hệ thống đã phân chia và tạo sẵn 5 nhánh Git cục bộ tương ứng với 5 thành viên trong nhóm:
-
-| STT | Thành viên | Nhánh GitHub (Branch) | Nhiệm vụ chính & Các Commit tiêu biểu |
-| :--- | :--- | :--- | :--- |
-| **1** | **Nguyễn Trần Bảo Duy** | `branch-1-duy-backend-srs` | **Backend Core & Thuật toán SRS:**<br>• `cd4ee16`: feat(kanban): persist ordered drops and accessible reordering<br>• `f43701b`: feat(srs): implement SuperMemo SM-2 calculation engine<br>• `b361267`: test: validate Sprint 2 tutor against latest main |
-| **2** | **Đỗ Đình Phan Diễn** | `branch-2-dien-frontend-auth` | **Xác thực JWT, Phân lập NFR-03 & PWA Offline:**<br>• `5fa0473`: fix+docs(nfr03): fix PostgreSQL migrations & update NFR-03 report<br>• `cc81fc7`: Merge branch 'dien/issue-52-nfr11-browser-offline' into main<br>• `6f4be74`: docs(issue-44): update verification report 20/20 PASS |
-| **3** | **Vũ Đình Hùng** | `branch-3-hung-ui-speech` | **UI Responsive & Giọng nói tiếng Việt:**<br>• `fdc5343`: feat(notebook): add Vietnamese speech controls and mobile touch support<br>• `42879aa`: docs: link PR 70 and issue progress reports<br>• `c914e20`: feat(validation): implement client-side input sanitization |
-| **4** | **Minh Chiến** | `branch-4-chien-notebook-plan` | **Sổ tay AI RAG & Kiểm thử tải NFR-02:**<br>• `f0fdef6`: feat(issue-36): generate personalized exam study plans<br>• `2721d71`: test: document issue 43 NFR-02 results (500+ rps)<br>• `71aab4d`: Merge pull request #79 from tungtungsahul/codex/issue-43-nfr02 |
-| **5** | **Tuấn Linh** | `branch-5-linh-database-uml` | **Cơ sở dữ liệu 3NF, UML & Điểm yếu Weak Areas:**<br>• `c5a41fd`: fix: make weak area DTOs EF translatable<br>• `b890dcc`: fix(migrations): fix duplicate Up/Down and snapshot<br>• `e14a79b`: docs(uml): complete comprehensive ERD, Use Case and Activity diagrams |
-
-### Các lệnh Git kiểm tra nhánh trên máy cục bộ:
-```bash
-# Kiểm tra danh sách 5 nhánh
-git branch
-
-# Chuyển đổi sang nhánh của từng thành viên
-git checkout branch-1-duy-backend-srs
-git checkout branch-2-dien-frontend-auth
-git checkout branch-3-hung-ui-speech
-git checkout branch-4-chien-notebook-plan
-git checkout branch-5-linh-database-uml
-
-# Xem commit của nhánh hiện tại
-git log --oneline -n 3
-```
+Xem liên kết issue, pull request, commit và hồ sơ kiểm thử trong [báo cáo cá nhân môn Lập trình Web](#phần-ii-báo-cáo-cá-nhân-môn-lập-trình-web) và [chỉ mục đối chiếu GitHub](Code_Docs/HUONG_DAN_CODE_VA_GITHUB.md#3-đối-chiếu-đóng-góp-trên-github).

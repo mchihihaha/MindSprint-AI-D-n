@@ -1,61 +1,30 @@
-# BÁO CÁO CÁ NHÂN — ĐÓNG GÓP DỰ ÁN MINDSPRINT AI
+# Báo cáo cá nhân môn Lập trình Web
 
-* **Họ và tên:** Nguyễn Trần Bảo Duy
-* **MSSV / Tài khoản:** `tungtungsahul` / `baoduy4bbt360`
-* **Vai trò trong nhóm:** Nhóm trưởng (Team Lead) & Lập trình viên Backend chính (Backend Lead)
-* **Nhánh GitHub phụ trách:** `branch-duy-backend-srs` (hoặc `codex/duy-sprint-2`, `codex/issue-34-programming-tutor`)
+- **Sinh viên** Nguyễn Trần Bảo Duy
+- **Tài khoản GitHub** [@tungtungsahul](https://github.com/tungtungsahul)
+- **Đề tài** Hệ thống hỗ trợ tự học MindSprint AI
+- **Ngày đối chiếu** 16/11/2026
 
----
+Tôi phát triển giao diện và luồng xử lý của Sổ tay AI, Gia sư và đăng nhập Google. Tôi cũng tích hợp các bản sửa, bổ sung kiểm thử và chốt bản chạy thử trên laptop.
 
-## 1. PHẠM VI CÔNG VIỆC VÀ TRÁCH NHIỆM CHÍNH
-1. **Quản lý dự án & Điều phối nhóm:**
-   * Thiết lập cấu trúc kho chứa GitHub, phân chia nhánh (Git Branching Strategy) theo mô hình GitFlow.
-   * Lập kế hoạch Sprint (Sprint 1 đến Sprint 4), phân chia Issue và theo dõi tiến độ công việc của 5 thành viên.
-   * Cấu hình CI/CD Pipeline với GitHub Actions (`.github/workflows/ci-cd.yml`) để tự động hóa build, test và deploy lên Render.
-2. **Thiết kế & Xây dựng Kiến trúc Backend:**
-   * Khởi tạo dự án ASP.NET Core 8 Web API (`MindSprint.Api`), cấu hình Dependency Injection, Middleware, CORS và Swagger UI.
-   * Thiết kế và triển khai thuật toán Spaced Repetition (SRS) SuperMemo SM-2 trong `SrsService.cs`.
-   * Xây dựng toàn bộ hệ thống API Quản lý Thẻ học Flashcard (`FlashcardsController.cs`) hỗ trợ CRUD đầy đủ và Optimistic Concurrency Control.
-3. **Phát triển Module Gia sư Lập trình AI (Issue #34):**
-   * Tích hợp Gemini AI API để hỗ trợ sinh viên phân tích và sửa lỗi code (Python, JavaScript).
-   * Triển khai chế độ gợi ý Socratic Method để người học tự tư duy khắc phục lỗi thay vì chỉ copy đáp án.
+## Tính năng đã thực hiện
 
----
+| Issue | Phần việc thực hiện | Minh chứng |
+| --- | --- | --- |
+| [#2](https://github.com/tungtungsahul/MindSprint-AI-D-n/issues/2), [#4](https://github.com/tungtungsahul/MindSprint-AI-D-n/issues/4) | Cấu hình và thử gọi Gemini cho Sổ tay AI. Bổ sung thử lại có khoảng chờ, chuyển model dự phòng khi gặp hạn mức và thông báo lỗi phù hợp trên giao diện. | [Xác nhận thử API](https://github.com/tungtungsahul/MindSprint-AI-D-n/issues/2#issuecomment-6017835428), [báo cáo tích hợp Gemini](https://github.com/tungtungsahul/MindSprint-AI-D-n/issues/4#issuecomment-5977127508) |
+| [#23](https://github.com/tungtungsahul/MindSprint-AI-D-n/issues/23), [#24](https://github.com/tungtungsahul/MindSprint-AI-D-n/issues/24) | Thiết kế lại giao diện MindSprint AI và bố cục Sổ tay AI. Sửa màn hình Luyện tập để đáp án dài xuống dòng và chế độ ghép thẻ hiển thị đầy đủ. | [`a05bc05`](https://github.com/tungtungsahul/MindSprint-AI-D-n/commit/a05bc05) |
+| [#25](https://github.com/tungtungsahul/MindSprint-AI-D-n/issues/25), [#26](https://github.com/tungtungsahul/MindSprint-AI-D-n/issues/26), [#27](https://github.com/tungtungsahul/MindSprint-AI-D-n/issues/27) | Mở rộng nhập nguồn URL cho Sổ tay AI. Backend xử lý chuyển hướng, kiểm tra đích tải và đọc nội dung từ nhiều định dạng, kể cả trang phải chạy JavaScript để hiển thị. Frontend báo tiến trình và lỗi tại ô nhập URL, giữ nội dung đã nhập khi thất bại. | [`a05bc05`](https://github.com/tungtungsahul/MindSprint-AI-D-n/commit/a05bc05), [báo cáo nhập URL](../frontend/design-reference/URL_IMPORT_FEEDBACK.md) |
+| [#28](https://github.com/tungtungsahul/MindSprint-AI-D-n/issues/28) | Tích hợp đăng nhập Google vào hộp đăng nhập chung. Kiểm tra thông tin đăng nhập ở API và yêu cầu xác minh mật khẩu hiện tại khi liên kết với tài khoản email đã có. | [`a05bc05`](https://github.com/tungtungsahul/MindSprint-AI-D-n/commit/a05bc05), [hồ sơ kiểm thử Google Auth](../backend/GoogleAuthChecks/VALIDATION.md) |
+| [#30](https://github.com/tungtungsahul/MindSprint-AI-D-n/issues/30), [#31](https://github.com/tungtungsahul/MindSprint-AI-D-n/issues/31), [#32](https://github.com/tungtungsahul/MindSprint-AI-D-n/issues/32) | Tích hợp chế độ Gia sư giải bài theo bước, biểu mẫu tách đề và bài làm để đưa nhận xét, và gợi ý ba mức trước khi người học chủ động xem lời giải. | [`897e1d0`](https://github.com/tungtungsahul/MindSprint-AI-D-n/commit/897e1d0), [PR #41](https://github.com/tungtungsahul/MindSprint-AI-D-n/pull/41) |
+| [#33](https://github.com/tungtungsahul/MindSprint-AI-D-n/issues/33), [#34](https://github.com/tungtungsahul/MindSprint-AI-D-n/issues/34) | Thêm nhận diện đề từ ảnh/PDF scan và bước xem, sửa đề trước khi gửi. Thêm luồng nhập lỗi Python/JavaScript để Gia sư giải thích nguyên nhân và gợi ý cách sửa. | [PR #63](https://github.com/tungtungsahul/MindSprint-AI-D-n/pull/63), [PR #66](https://github.com/tungtungsahul/MindSprint-AI-D-n/pull/66) |
 
-## 2. CHI TIẾT CÁC ĐÓNG GÓP KỸ THUẬT & MÃ NGUỒN
+## Tích hợp và kiểm thử
 
-### 2.1. Triển khai thuật toán Spaced Repetition (SM-2)
-* **Tệp mã nguồn:** `backend/MindSprint.Api/Services/SrsService.cs`
-* **Nghiệp vụ thực hiện:**
-  * Tiếp nhận đánh giá độ nhớ $q \in [1, 5]$ từ người học.
-  * Cập nhật hệ số độ dễ $EF$ đảm bảo không nhỏ hơn ngưỡng tối thiểu 1.3:
-    $$EF' = \max\left(1.3, \; EF + (0.1 - (5 - q) \times (0.08 + (5 - q) \times 0.02))\right)$$
-  * Tính toán khoảng cách ngày ôn tiếp theo $I(n)$:
-    * Nếu $q < 3$: Reset $n = 0, I = 1$ (học lại từ đầu).
-    * Nếu $n = 1: I_1 = 1$ ngày.
-    * Nếu $n = 2: I_2 = 6$ ngày.
-    * Nếu $n > 2: I_n = \text{round}(I_{n-1} \times EF')$.
-
-### 2.2. Triển khai CRUD Quản lý Thẻ học (Sản phẩm)
-* **Tệp mã nguồn:** `backend/MindSprint.Api/Controllers/FlashcardsController.cs`
-* **Các endpoints xây dựng:**
-  * `GET /api/flashcards`: Đọc danh sách thẻ (hỗ trợ lọc theo `category`, `subCategory`, phân trang và tải kèm trạng thái SRS).
-  * `POST /api/flashcards`: Thêm mới sản phẩm thẻ học cá nhân với `OwnerId = currentUserId`.
-  * `PUT /api/flashcards/{externalId}`: Chỉnh sửa thông tin thẻ có kiểm tra token tương tranh `Version`.
-  * `DELETE /api/flashcards/{externalId}`: Xóa thẻ khỏi cơ sở dữ liệu.
-
----
-
-## 3. LỊCH SỬ COMMITS TIÊU BIỂU TRÊN GITHUB
-* `71aab4d`: Merge pull request #79 from tungtungsahul/codex/issue-43-nfr02
-* `cc81fc7`: Merge branch 'dien/issue-52-nfr11-browser-offline' into main
-* `6f4be74`: docs(issue-44): update verification report with 20/20 ConcurrencyChecks PASS
-* `e2497f3`: fix(auth): align TokenService rotation with EF Core optimistic concurrency tokens
-* `f43701b`: feat(srs): implement SuperMemo SM-2 calculation engine and tests
-
----
-
-## 4. TỰ ĐÁNH GIÁ MỨC ĐỘ HOÀN THÀNH
-* **Tỷ lệ hoàn thành nhiệm vụ:** 100%
-* **Đóng góp nổi bật:** Dẫn dắt kiến trúc backend chuẩn chỉ, xử lý triệt để bài toán tương tranh (OCC) và triển khai thành công live server trên Render.
-* **Tự xếp loại:** Xuất sắc (A+)
+| Issue | Phần việc thực hiện | Minh chứng |
+| --- | --- | --- |
+| [#10](https://github.com/tungtungsahul/MindSprint-AI-D-n/issues/10) | Hoàn thiện thứ tự kéo thả Kanban trong cùng cột và giữa các cột, thêm điều khiển lên/xuống bằng bàn phím và cảm ứng. Phần này tích hợp trên luồng Kanban của Phan Diễn. | [PR #41](https://github.com/tungtungsahul/MindSprint-AI-D-n/pull/41) |
+| [#17](https://github.com/tungtungsahul/MindSprint-AI-D-n/issues/17) | Đưa bộ ca kiểm thử và kết quả chạy ban đầu của đăng nhập, Kanban, Sổ tay AI và tạo thẻ AI vào nhánh `main`. Hồ sơ ghi riêng các ca chạy với dữ liệu giả lập và phần xác minh còn thiếu. | [PR #72](https://github.com/tungtungsahul/MindSprint-AI-D-n/pull/72), [kết quả kiểm thử](../docs/testing/sprint-3-results.md) |
+| [#55](https://github.com/tungtungsahul/MindSprint-AI-D-n/issues/55), [#80](https://github.com/tungtungsahul/MindSprint-AI-D-n/issues/80), [#84](https://github.com/tungtungsahul/MindSprint-AI-D-n/issues/84), [#87](https://github.com/tungtungsahul/MindSprint-AI-D-n/issues/87), [#89](https://github.com/tungtungsahul/MindSprint-AI-D-n/issues/89), [#90](https://github.com/tungtungsahul/MindSprint-AI-D-n/issues/90) | Bổ sung kiểm tra cấu trúc đầu ra AI và đối chiếu trích dẫn với nguồn. Sửa các lỗi trong lời giải và luồng gợi ý của Gia sư. Hồ sơ đối chiếu 90 mẫu ghi nhận còn chờ chấm thủ công. | [PR #81](https://github.com/tungtungsahul/MindSprint-AI-D-n/pull/81), [hồ sơ đối chiếu](../docs/testing/ISSUE-55-REVIEW.md) |
+| [#105](https://github.com/tungtungsahul/MindSprint-AI-D-n/issues/105) | Chốt bản chạy thử trên laptop bằng Docker và SQL Server Express. Đóng gói giao diện và API cùng địa chỉ, kiểm tra build từ mã nguồn sạch, khởi động và thao tác cơ bản trên cơ sở dữ liệu thử. | [`369e714`](https://github.com/tungtungsahul/MindSprint-AI-D-n/commit/369e714), [PR #122](https://github.com/tungtungsahul/MindSprint-AI-D-n/pull/122), [hướng dẫn chạy](../docs/SELF-HOST-DEMO.md) |
+| [#107](https://github.com/tungtungsahul/MindSprint-AI-D-n/issues/107), [#109](https://github.com/tungtungsahul/MindSprint-AI-D-n/issues/109), [#112](https://github.com/tungtungsahul/MindSprint-AI-D-n/issues/112) | Loại log và bản sao lưu khỏi Docker build context, kiểm tra lại build, thêm hồi quy trình duyệt gửi request cùng origin và xác minh `/healthz` cùng `/readyz` khi SQL Server dừng rồi khởi động lại. | [PR #124](https://github.com/tungtungsahul/MindSprint-AI-D-n/pull/124), [`4b94c1d`](https://github.com/tungtungsahul/MindSprint-AI-D-n/commit/4b94c1d), [kết quả Docker và readiness](../docs/testing/issues-107-112-sqlserver.md) |
+| [#113](https://github.com/tungtungsahul/MindSprint-AI-D-n/issues/113) | Chạy lại benchmark trên stack SQL Server thử nghiệm, ghi riêng thời gian build sạch, cold start, warm start và tài nguyên đo được. PR đã merge, issue đang mở. | [PR #126](https://github.com/tungtungsahul/MindSprint-AI-D-n/pull/126), [báo cáo đo](../docs/testing/issue-113-docker-resources.md) |
