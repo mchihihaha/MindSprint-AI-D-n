@@ -90,16 +90,20 @@ async function run() {
 
     // 2. Kiểm chứng probes liveness / healthz và readiness / readyz
     try {
+        const t0 = process.hrtime.bigint();
         const healthRes = await requestJson(`${base}/healthz`);
+        const healthMs = Number(process.hrtime.bigint() - t0) / 1e6;
         if (healthRes.status === 200 && healthRes.body?.status === 'ok') {
-            record('Liveness probe (/healthz)', 'live', 'Pass', 'Trả về HTTP 200 ok (tiến trình sống)');
+            record('Liveness probe (/healthz)', 'live', 'Pass', `Trả về HTTP 200 ok (tiến trình sống, độ trễ: ${healthMs.toFixed(2)} ms)`);
         } else {
             record('Liveness probe (/healthz)', 'live', 'Fail', `HTTP ${healthRes.status}`);
         }
 
+        const t1 = process.hrtime.bigint();
         const readyRes = await requestJson(`${base}/readyz`);
+        const readyMs = Number(process.hrtime.bigint() - t1) / 1e6;
         if (readyRes.status === 200 && readyRes.body?.status === 'ready') {
-            record('Readiness probe (/readyz) khi DB sẵn sàng', 'live', 'Pass', 'Trả về HTTP 200 ready (SELECT 1 thành công)');
+            record('Readiness probe (/readyz) khi DB sẵn sàng', 'live', 'Pass', `Trả về HTTP 200 ready (SELECT 1 thành công, độ trễ: ${readyMs.toFixed(2)} ms)`);
         } else {
             record('Readiness probe (/readyz) khi DB sẵn sàng', 'live', 'Fail', `HTTP ${readyRes.status}`);
         }
