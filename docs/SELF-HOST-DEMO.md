@@ -160,6 +160,10 @@ CORS cho website khác. Cấu hình Vercel/Render cũ không thay đổi.
   curl.exe http://127.0.0.1:8080/readyz
   ```
   Khi trả về `{"status":"ready"}`, hệ thống đã sẵn sàng phục vụ mà không cần khởi động lại.
+- **Xử lý sự cố nếu Docker Engine bị treo sau Sleep:**
+  1. Chạy `.\scripts\selfhost.ps1 -Action Status` để kiểm tra container có còn sống không.
+  2. Nếu WSL2 hoặc Docker daemon mất kết nối, chỉ cần Restart Docker Desktop từ khay hệ thống (System Tray).
+  3. Sau khi Docker Desktop xanh trở lại, chạy `.\scripts\selfhost.ps1 -Action Start` để tiếp tục phiên làm việc.
 - **Lưu ý:** Không đặt mục tiêu uptime 24/7 cho máy cá nhân. Trong buổi demo/kiểm tra, nên tắt tạm thời chế độ Sleep tự động trong cài đặt Windows.
 
 ### 2. Phục hồi sau Reboot hoặc Mở lại Docker Desktop
