@@ -66,6 +66,15 @@ services:
   - Khi người dùng chủ động chạy `scripts/selfhost.ps1 Stop` (thực thi `docker compose down`), Docker ghi nhận trạng thái dừng chủ động và **không tự động bật lại trái ý người dùng**.
   - Không sử dụng cờ `-v` / `--volumes` trong lệnh Stop, đảm bảo volume dữ liệu `sqlserver-data` được bảo tồn nguyên vẹn.
 
+### 2.4. Ma trận rủi ro và cơ chế xử lý sự cố container
+
+| Tình huống sự cố | Nguy cơ | Cơ chế kiểm soát | Trạng thái |
+|---|---|---|:---:|
+| **DB khởi động chậm hơn Web** | Web lỗi kết nối và crash lặp lại | `depends_on: db: condition: service_healthy` giữ Web không start cho tới khi DB pass `SELECT 1` | **Đã xử lý** |
+| **Tiến trình Web/DB bị kill đột ngột** | Dịch vụ gián đoạn kéo dài | `restart: unless-stopped` kích hoạt Docker daemon tự khởi động lại container | **Đã xử lý** |
+| **Chủ máy dừng stack để nghỉ ngơi** | Container tự bật lại gây tốn pin/RAM | Lệnh Stop ghi nhận trạng thái stopped chủ động, Docker không tự bật lại | **Đã xử lý** |
+| **Mở lại Docker Desktop sau tắt máy** | Mất dữ liệu demo | Volume `sqlserver-data` nằm ngoài vòng đời container, toàn bộ bảng được bảo toàn | **Đã xử lý** |
+
 ---
 
 ## 3. Kết quả kiểm chứng thực tế
