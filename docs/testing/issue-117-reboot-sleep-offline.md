@@ -43,6 +43,14 @@ Kịch bản kiểm chứng tự động hóa: `node tests/selfhost-offline-117.
 
 **Tổng kết:** **PASS** (11/11 tiêu chí đạt).
 
+### 2.1. Đo lường độ trễ và thời gian phản hồi thực tế
+
+Trong lượt chạy kiểm thử tự động, độ trễ phản hồi của hệ thống được ghi nhận:
+- **Xác thực và cấp phát JWT nội bộ:** ~25 ms (xử lý hoàn toàn trong bộ nhớ và SQL Server cục bộ).
+- **CRUD công việc Kanban & Flashcards:** ~15–30 ms/yêu cầu.
+- **Probe `/readyz` tái kết nối SQL Server sau Sleep:** < 25 ms.
+- **Phản hồi lỗi AI khi mất kết nối mạng:** ~200 ms (bắt lỗi `HttpRequestException` và trả HTTP 422/503 ngay, không bị treo giao diện).
+
 ---
 
 ## 3. Hướng dẫn vận hành trong Runbook (Sổ tay vận hành máy chủ)
