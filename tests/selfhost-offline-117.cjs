@@ -169,18 +169,20 @@ async function run() {
 
     // 3. Kịch bản gọi Gemini khi ngắt kết nối Internet / dịch vụ AI không khả dụng
     try {
+        const tAi0 = process.hrtime.bigint();
         const aiRes = await requestJson(`${base}/api/ai/flashcards`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
             body: { text: 'Kiểm tra phản ứng khi không có kết nối tới Google Gemini.', count: 1 }
         });
+        const aiMs = Number(process.hrtime.bigint() - tAi0) / 1e6;
 
         const isHandledError = (aiRes.status === 503 || aiRes.status === 422 || aiRes.status === 502) &&
             aiRes.body && (aiRes.body.code === 'ai_busy' || aiRes.body.code === 'ai_request_rejected' || aiRes.body.code === 'ai_configuration');
 
         if (isHandledError) {
             record('Phản hồi rõ ràng khi gọi Gemini không có mạng/key', 'ai-error', 'Pass',
-                `HTTP ${aiRes.status} (code: ${aiRes.body.code}): "${aiRes.body.message}" - báo lỗi rõ, không crash máy chủ`);
+                `HTTP ${aiRes.status} (code: ${aiRes.body.code}, phản hồi trong ${aiMs.toFixed(2)} ms): "${aiRes.body.message}" - báo lỗi rõ, không crash máy chủ`);
         } else {
             record('Phản hồi rõ ràng khi gọi Gemini không có mạng/key', 'ai-error', 'Fail', `HTTP ${aiRes.status}`);
         }
