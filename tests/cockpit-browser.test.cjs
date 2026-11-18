@@ -51,6 +51,14 @@ test('Cockpit preserves shared login, account checklists, feature routes and mob
             const request = route.request(), url = new URL(request.url());
             if (url.pathname.startsWith('/api/')) {
                 calls.push(url.pathname);
+                if (request.method() === 'OPTIONS') {
+                    return route.fulfill({status:204,headers:{
+                        'Access-Control-Allow-Origin':base,
+                        'Access-Control-Allow-Headers':'authorization,content-type',
+                        'Access-Control-Allow-Methods':'GET,POST,OPTIONS',
+                        'Access-Control-Max-Age':'600'
+                    }});
+                }
                 let body = [];
                 if (url.pathname.endsWith('/auth/login')) {
                     const second = request.postDataJSON().email === 'second@example.test';
